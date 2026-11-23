@@ -93,7 +93,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V5.3</div>
+      <div class="ver-pill">제작자 손영곤 V5.4</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -971,12 +971,12 @@ function switchTab(name, btn) {
 function renderCarriers() {
   const box = document.getElementById('carrierChips');
   box.innerHTML = Object.keys(CARRIERS).map(k =>
-    `<button class="chip ${state.carrier === k ? 'on' : ''}" onclick="selectCarrier('${k}')">${k}</button>`
+    `<button class="chip ${state.carrier === k ? 'on' : ''}" onclick="selectCarrier('${k}', true)">${k}</button>`
   ).join('');
 }
 
 
-function resetQuote() {
+function clearAllToZero() {
   state.affDisc = 0;
   state.assignIdx = 0;
   state.usim = [];
@@ -985,22 +985,23 @@ function resetQuote() {
   if (document.getElementById('giftAmt')) document.getElementById('giftAmt').value = '0';
   if (document.getElementById('wifiSelect')) document.getElementById('wifiSelect').value = '0';
   if (document.getElementById('extraTvCount')) document.getElementById('extraTvCount').value = '1';
-  if (document.getElementById('installWeekend')) document.getElementById('installWeekend').checked = false;
-  if (document.getElementById('installExempt')) document.getElementById('installExempt').checked = false;
-  if (document.getElementById('welfareSelect')) document.getElementById('welfareSelect').value = 'none';
+  if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = false;
+  if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = false;
+  if (document.getElementById('welfareType')) document.getElementById('welfareType').value = 'none';
   if (document.getElementById('ktMode')) document.getElementById('ktMode').value = 'contrib';
   if (document.getElementById('skMode')) document.getElementById('skMode').value = 'even';
   if (document.getElementById('lgMode')) document.getElementById('lgMode').value = 'cham';
   if (document.getElementById('helloMode')) document.getElementById('helloMode').value = 'uplus';
   if (document.getElementById('skyDouble')) document.getElementById('skyDouble').value = 'none';
-  selectCarrier('SKT');
-  if (document.getElementById('netSelect')) document.getElementById('netSelect').value = '-1';
-  if (document.getElementById('tvSelect')) document.getElementById('tvSelect').value = '0';
-  recalc();
+}
+
+function resetQuote() {
+  selectCarrier('SKT', true);
   showToast('견적이 0원으로 초기화되었습니다.');
 }
 
-function selectCarrier(k) {
+function selectCarrier(k, resetToZero) {
+  if (resetToZero) clearAllToZero();
   state.carrier = k;
   const kb = document.getElementById('ktOptionBox');
   const sb = document.getElementById('skOptionBox');
@@ -1015,6 +1016,10 @@ function selectCarrier(k) {
   if (skyb) skyb.classList.toggle('hide', k !== '스카이라이프');
   renderCarriers();
   populateSelects();
+  if (resetToZero) {
+    if (document.getElementById('netSelect')) document.getElementById('netSelect').value = '-1';
+    if (document.getElementById('tvSelect')) document.getElementById('tvSelect').value = '0';
+  }
   renderUsimLines();
   renderAffCardList();
   recalc();
