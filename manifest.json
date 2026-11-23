@@ -1,0 +1,31 @@
+{
+  "id": "/tonghap-calc-green/",
+  "name": "통합 통신비서 (그린)",
+  "short_name": "통합 통신비서",
+  "description": "인터넷·TV·유심 요금·결합 계산기",
+  "start_url": "/tonghap-calc-green/",
+  "scope": "/tonghap-calc-green/",
+  "display": "standalone",
+  "background_color": "#03C75A",
+  "theme_color": "#03C75A",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
