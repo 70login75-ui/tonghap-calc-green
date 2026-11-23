@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V2.0</div>
+      <div class="ver-pill">제작자 손영곤 V2.1</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -205,12 +205,8 @@
       </div>
       <div class="grid2">
         <div>
-          <div class="field-lbl">셋톱박스 업그레이드</div>
-          <select class="sel" id="settopSelect" onchange="recalc()">
-            <option value="0">기본 셋톱 포함 (0원)</option>
-            <option value="2200">고급/AI 셋톱 (+2,200원)</option>
-            <option value="4400">프리미엄/사운드바 (+4,400원)</option>
-          </select>
+          <div class="field-lbl" style="margin-top:8px;">셋톱박스 선택 (3년 약정 · 부가세 포함)</div>
+    <select class="sel" id="settopSelect" onchange="recalc()"></select>
         </div>
         <div>
           <div class="field-lbl">설치비 안내 (최초 1회)</div>
@@ -392,9 +388,21 @@ const CARRIERS = {
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
-      { label: 'B tv 이코노미+Smart3 (14,300원)', price: 14300 },
-      { label: 'B tv 스탠다드+Smart3 (17,600원)', price: 17600 },
-      { label: 'B tv ALL+Smart3 (20,900원)', price: 20900 }
+      { label: 'B tv 이코노미 (9,900원)', price: 9900 },
+      { label: 'B tv 스탠다드 (13,200원)', price: 13200 },
+      { label: 'B tv All (16,500원)', price: 16500 },
+      { label: 'B tv All+ (22,000원)', price: 22000 },
+      { label: 'B tv+ max (23,100원)', price: 23100 }
+    ],
+    settops: [
+      { label: 'Smart 3 (4,400원)', price: 4400 },
+      { label: 'Smart 3 mini 무선 (4,400원)', price: 4400 },
+      { label: 'AI 5 · 셋톱 케어 (5,500원)', price: 5500 },
+      { label: 'AI 5 기본 (7,700원)', price: 7700 },
+      { label: 'AI 스피커형 / NUGU 2 (6,600원)', price: 6600 },
+      { label: 'Apple TV 4K 3년할부 (6,600원)', price: 6600 },
+      { label: 'AI 4 vision (8,800원)', price: 8800 },
+      { label: 'AI Sound Max (8,800원)', price: 8800 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const netBase = { 100: 4400, 500: 11000, 1000: 13200 }[speed] || 0;
@@ -429,9 +437,21 @@ const CARRIERS = {
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
-      { label: 'B tv 이코노미+Smart3 (14,300원)', price: 14300 },
-      { label: 'B tv 스탠다드+Smart3 (17,600원)', price: 17600 },
-      { label: 'B tv ALL+Smart3 (20,900원)', price: 20900 }
+      { label: 'B tv 이코노미 (9,900원)', price: 9900 },
+      { label: 'B tv 스탠다드 (13,200원)', price: 13200 },
+      { label: 'B tv All (16,500원)', price: 16500 },
+      { label: 'B tv All+ (22,000원)', price: 22000 },
+      { label: 'B tv+ max (23,100원)', price: 23100 }
+    ],
+    settops: [
+      { label: 'Smart 3 (4,400원)', price: 4400 },
+      { label: 'Smart 3 mini 무선 (4,400원)', price: 4400 },
+      { label: 'AI 5 · 셋톱 케어 (5,500원)', price: 5500 },
+      { label: 'AI 5 기본 (7,700원)', price: 7700 },
+      { label: 'AI 스피커형 / NUGU 2 (6,600원)', price: 6600 },
+      { label: 'Apple TV 4K 3년할부 (6,600원)', price: 6600 },
+      { label: 'AI 4 vision (8,800원)', price: 8800 },
+      { label: 'AI Sound Max (8,800원)', price: 8800 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
@@ -466,9 +486,18 @@ const CARRIERS = {
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
-      { label: '지니 TV 슬림+셋톱A (13,200원)', price: 13200 },
-      { label: '지니 TV 베이직+셋톱A (15,400원)', price: 15400 },
-      { label: '지니 TV 에센스+셋톱A (19,800원)', price: 19800 }
+      { label: '지니 TV 베이직 (12,100원)', price: 12100 },
+      { label: '지니 TV 라이트 (13,200원)', price: 13200 },
+      { label: '지니 TV 에센스 (16,500원)', price: 16500 },
+      { label: '지니 TV 모든G (19,800원)', price: 19800 }
+    ],
+    settops: [
+      { label: '지니 TV 셋톱박스 A (3,300원)', price: 3300 },
+      { label: '지니 TV 셋톱박스 3 (4,400원)', price: 4400 },
+      { label: '지니 TV 셋톱박스 A2 · 케어 (5,500원)', price: 5500 },
+      { label: '지니 TV 셋톱박스 4 (6,600원)', price: 6600 },
+      { label: '지니 TV 셋톱박스 A2 기본 (7,700원)', price: 7700 },
+      { label: '지니 TV 올인원 사운드바 (8,800원)', price: 8800 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
@@ -531,8 +560,15 @@ const CARRIERS = {
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
-      { label: 'U+ TV 베이직+UHD4 (16,500원)', price: 16500 },
-      { label: 'U+ TV 프리미엄+UHD4 (20,900원)', price: 20900 }
+      { label: 'U+tv 실속형 (13,200원)', price: 13200 },
+      { label: 'U+tv 기본형 (14,300원)', price: 14300 },
+      { label: 'U+tv 프리미엄 (16,500원)', price: 16500 }
+    ],
+    settops: [
+      { label: 'UHD4 셋톱박스 (4,400원)', price: 4400 },
+      { label: '고급형 셋톱박스 아날로그용 (3,300원)', price: 3300 },
+      { label: 'U+tv 사운드바 블랙 (6,600원)', price: 6600 },
+      { label: 'U+tv 사운드바 블랙2 (8,800원)', price: 8800 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
@@ -576,7 +612,12 @@ const CARRIERS = {
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
       { label: 'sky All TV (12,100원)', price: 12100 },
-      { label: 'sky 포인트 TV (14,300원)', price: 14300 }
+      { label: 'sky 베이직 IPTV (18,700원)', price: 18700 },
+      { label: 'sky 플러스 IPTV (19,800원)', price: 19800 }
+    ],
+    settops: [
+      { label: 'sky All 기본 수신기 (1,100원)', price: 1100 },
+      { label: '안드로이드/IPTV 수신기 (3,300원)', price: 3300 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio, tvPrice) => {
       const cnt = plansList.length;
@@ -599,8 +640,13 @@ const CARRIERS = {
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
-      { label: '이코노미 HD (11,000원)', price: 11000 },
-      { label: '베이직 UHD (14,300원)', price: 14300 }
+      { label: '헬로tv 이코노미 110ch (8,800원)', price: 8800 },
+      { label: '헬로tv 뉴베이직 245ch (13,200원)', price: 13200 },
+      { label: '헬로tv 뉴베이직+코인5천 (15,400원)', price: 15400 }
+    ],
+    settops: [
+      { label: 'UHD 셋톱박스 (4,400원)', price: 4400 },
+      { label: 'HD 셋톱박스 (2,200원)', price: 2200 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
@@ -723,6 +769,8 @@ function populateSelects() {
   const tvSel = document.getElementById('tvSelect');
   netSel.innerHTML = c.nets.map((n, i) => `<option value="${i}" ${i===1?'selected':''}>${n.label}</option>`).join('');
   tvSel.innerHTML = c.tvs.map((t, i) => `<option value="${i}" ${i===1?'selected':''}>${t.label}</option>`).join('');
+  const settopSel = document.getElementById('settopSelect');
+  if (settopSel && c.settops) settopSel.innerHTML = c.settops.map((s, i) => `<option value="${i}" ${i===0?'selected':''}>${s.label}</option>`).join('');
 }
 
 function renderUsimLines() {
@@ -817,7 +865,10 @@ function recalc() {
   const tvObj = c.tvs[parseInt(document.getElementById('tvSelect').value, 10)] || c.tvs[0];
   const wifi = parseInt(document.getElementById('wifiSelect').value, 10) || 0;
   const extraTv = parseInt(document.getElementById('extraTvSelect').value, 10) || 0;
-  const settopAdd = (tvObj.price > 0 ? (parseInt((document.getElementById('settopSelect') || {}).value, 10) || 0) : 0);
+  const settopSelEl = document.getElementById('settopSelect');
+  if (settopSelEl) settopSelEl.disabled = (tvObj.price === 0);
+  const settopObj = (c.settops && settopSelEl) ? (c.settops[parseInt(settopSelEl.value, 10)] || c.settops[0]) : { label: '기본', price: 0 };
+  const settopAdd = (tvObj.price > 0 ? (settopObj.price || 0) : 0);
   const installFee = (document.getElementById('installFeeSelect') || {}).value || '';
   const gift = parseInt(document.getElementById('giftAmt').value, 10) || 0;
   const wType = (document.getElementById('welfareType') || {}).value || 'none';
@@ -897,7 +948,7 @@ function recalc() {
   document.getElementById('sumDisc').textContent = `-${fmt(totalDisc)}원`;
 
   state.lastResult = {
-    carrier: c.name, years, netLabel: netObj.label, tvLabel: tvObj.label + (extraTv > 0 ? ` (+2대째 ${fmt(extraTv)}원)` : ''),
+    carrier: c.name, years, netLabel: netObj.label, tvLabel: (tvObj.price > 0 ? `${tvObj.label} + ${settopObj.label}` : tvObj.label) + (extraTv > 0 ? ` (+2대째 ${fmt(extraTv)}원)` : ''),
     wiredFinal, usimCount: state.usim.length, usimFinalSum, affDisc: state.affDisc,
     welfareMobTotal, welfareWiredDisc: useWelfareWired ? welfareWiredDisc : 0, installFee,
     totalMonthly, gift, realMonthly, totalDisc
