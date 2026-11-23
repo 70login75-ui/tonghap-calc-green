@@ -25,9 +25,9 @@
 
   .summary-box { margin: 12px 14px 0; background: #fff; border-radius: 16px; padding: 14px 16px; border: 1.5px solid #03C75A; box-shadow: 0 4px 14px rgba(3,199,90,0.08); }
   .sum-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
-  .sum-label { font-size: 11.5px; font-weight: 700; color: #4B5563; }
-  .sum-price { font-size: 26px; font-weight: 900; color: #009A3E; letter-spacing: -0.5px; margin-top: 2px; }
-  .sum-price span { font-size: 13px; font-weight: 700; color: #374151; }
+  .sum-label { font-size: 14px; font-weight: 900; color: #1F2937; }
+  .sum-price { font-size: 32px; font-weight: 900; color: #009A3E; letter-spacing: -0.8px; margin-top: 3px; }
+  .sum-price span { font-size: 15px; font-weight: 800; color: #1F2937; }
   .sum-real { font-size: 15px; font-weight: 900; color: #111827; margin-top: 3px; }
   .sum-sub { margin-top: 9px; padding-top: 8px; border-top: 1px dashed #E5E7EB; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; font-size: 11.5px; color: #374151; font-weight: 700; }
   .sum-sub strong { color: #7C3AED; font-weight: 800; }
@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V3.0</div>
+      <div class="ver-pill">제작자 손영곤 V3.1</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -109,21 +109,22 @@
         </div>
         
       </div>
-      <div id="sumDetailBox" style="margin-top:10px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.45;color:#111827;">
-        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0;padding-bottom:8px;margin-bottom:8px;">
-          <div>
-            <div style="font-weight:900;font-size:14px;color:#0F172A;" id="sumWiredTitle">인터넷·TV</div>
-            <div style="font-size:12px;color:#475569;font-weight:700;" id="sumWiredSub"></div>
+      <div id="sumDetailBox" style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:14px;padding:13px 13px;font-size:14.5px;line-height:1.45;color:#111827;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #E2E8F0;padding-bottom:10px;margin-bottom:10px;">
+          <div style="min-width:0;flex:1;">
+            <div style="font-weight:900;font-size:15.5px;color:#0F172A;" id="sumWiredTitle">인터넷·TV</div>
+            <div style="font-size:13px;color:#059669;font-weight:800;margin-top:2px;" id="sumWiredDiscDetail"></div>
+            <div style="font-size:12px;color:#475569;font-weight:700;margin-top:1px;" id="sumWiredSub"></div>
           </div>
-          <div style="text-align:right;">
-            <span style="color:#DC2626;font-weight:900;margin-right:6px;" id="sumWiredDisc"></span>
-            <span style="font-weight:900;font-size:15px;color:#0F172A;" id="sumWired">0원</span>
+          <div style="text-align:right;white-space:nowrap;flex-shrink:0;">
+            <span style="color:#DC2626;font-weight:900;font-size:15px;margin-right:6px;" id="sumWiredDisc"></span>
+            <span style="font-weight:900;font-size:17px;color:#009A3E;" id="sumWired">0원</span>
           </div>
         </div>
-        <div id="sumUsimLines" style="display:flex;flex-direction:column;gap:7px;"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #E2E8F0;padding-top:8px;margin-top:8px;font-weight:900;font-size:14px;">
+        <div id="sumUsimLines" style="display:flex;flex-direction:column;gap:9px;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #CBD5E1;padding-top:9px;margin-top:9px;font-weight:900;font-size:15.5px;">
           <span style="color:#0F172A;">총 할인 금액</span>
-          <span style="color:#DC2626;font-size:15.5px;" id="sumDisc">-0원</span>
+          <span style="color:#DC2626;font-size:17.5px;white-space:nowrap;" id="sumDisc">-0원</span>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed #E5E7EB;">
@@ -233,6 +234,21 @@
         </label>
       </div>
     </div>
+        </div>
+      </div>
+<div style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:11px 12px;font-size:14px;font-weight:800;">
+        <div style="display:flex;justify-content:space-between;color:#374151;">
+          <span>원래 인터넷·TV 요금</span>
+          <span id="wiredCardOrig">0원</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:#DC2626;margin-top:4px;">
+          <span>할인 금액</span>
+          <span id="wiredCardDisc">-0원</span>
+        </div>
+        <div style="font-size:12.5px;color:#059669;font-weight:800;margin-top:2px;" id="wiredCardDiscTag"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #CBD5E1;padding-top:7px;margin-top:7px;font-size:16px;font-weight:900;color:#111827;">
+          <span>실 청구 금액</span>
+          <span id="wiredCardPay" style="color:#009A3E;">0원</span>
         </div>
       </div>
     </div>
@@ -1091,29 +1107,48 @@ function recalc() {
 
   const wiredSupply = Math.round(wiredFinal / 1.1);
   const wiredVat = wiredFinal - wiredSupply;
+  const wParts = [];
+  if (wiredCombDisc > 0) wParts.push(`결합 -${fmt(wiredCombDisc)}`);
+  if (welfWired > 0) wParts.push(`복지 -${fmt(welfWired)}`);
+  const wDetailTxt = wParts.length ? wParts.join(' · ') : '적용된 할인 없음';
+
+  const wTitleEl = document.getElementById('sumWiredTitle');
+  if (wTitleEl) wTitleEl.innerHTML = `인터넷·TV <span style="font-size:13px;color:#475569;font-weight:800;">(${fmt(wiredBase)}원)</span>`;
+  const wDetEl = document.getElementById('sumWiredDiscDetail');
+  if (wDetEl) wDetEl.textContent = wDetailTxt;
   document.getElementById('sumWired').textContent = `${fmt(wiredFinal)}원`;
   const wDiscEl = document.getElementById('sumWiredDisc');
   if (wDiscEl) wDiscEl.textContent = finalWiredDisc > 0 ? `-${fmt(finalWiredDisc)}원` : '';
   const wSubEl = document.getElementById('sumWiredSub');
-  if (wSubEl) wSubEl.textContent = `기본 ${fmt(wiredBase)}원 · 공급가 ${fmt(wiredSupply)} + 부가세 ${fmt(wiredVat)}`;
+  if (wSubEl) wSubEl.textContent = `공급가 ${fmt(wiredSupply)} + 부가세 ${fmt(wiredVat)}`;
+
+  const wcOrig = document.getElementById('wiredCardOrig');
+  const wcDisc = document.getElementById('wiredCardDisc');
+  const wcTag = document.getElementById('wiredCardDiscTag');
+  const wcPay = document.getElementById('wiredCardPay');
+  if (wcOrig) wcOrig.textContent = `${fmt(wiredBase)}원`;
+  if (wcDisc) wcDisc.textContent = `-${fmt(finalWiredDisc)}원`;
+  if (wcTag) wcTag.textContent = `(${wDetailTxt})`;
+  if (wcPay) wcPay.textContent = `${fmt(wiredFinal)}원`;
+
   const uBox = document.getElementById('sumUsimLines');
   if (uBox) {
     const modeLbl = isAssignMode() ? '지정할인' : '각각할인';
-    uBox.innerHTML = `<div style="font-size:12px;color:#475569;font-weight:800;">유심 ${state.usim.length}회선 (${modeLbl})</div>` +
+    uBox.innerHTML = `<div style="font-size:13px;color:#475569;font-weight:900;">유심 ${state.usim.length}회선 (${modeLbl})</div>` +
       (window._sumUsimRows || []).map(r => `
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <span style="font-weight:900;color:#0F172A;">${r.idx+1}회선</span>
-            <span style="font-size:12px;color:#475569;font-weight:700;">(${fmt(r.orig)}원)</span>
-            <div style="font-size:11.5px;color:#059669;font-weight:700;">${r.detail || '할인 없음'}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div style="min-width:0;flex:1;">
+            <span style="font-weight:900;font-size:15.5px;color:#0F172A;">${r.idx+1}회선</span>
+            <span style="font-size:13px;color:#475569;font-weight:800;">(${fmt(r.orig)}원)</span>
+            <div style="font-size:13px;color:#059669;font-weight:800;margin-top:2px;">${r.detail || '할인 없음'}</div>
           </div>
-          <div style="text-align:right;">
-            <span style="color:#DC2626;font-weight:900;margin-right:6px;">-${fmt(r.disc)}원</span>
-            <span style="font-weight:900;font-size:15px;color:#009A3E;">${fmt(r.pay)}원</span>
+          <div style="text-align:right;white-space:nowrap;flex-shrink:0;">
+            <span style="color:#DC2626;font-weight:900;font-size:15px;margin-right:6px;">-${fmt(r.disc)}원</span>
+            <span style="font-weight:900;font-size:17px;color:#009A3E;">${fmt(r.pay)}원</span>
           </div>
         </div>
       `).join('') +
-      (state.affDisc > 0 ? `<div style="display:flex;justify-content:space-between;font-weight:900;color:#DC2626;"><span>제휴카드 추가할인</span><span>-${fmt(state.affDisc)}원</span></div>` : '');
+      (state.affDisc > 0 ? `<div style="display:flex;justify-content:space-between;font-weight:900;font-size:14.5px;color:#DC2626;"><span>제휴카드 추가할인</span><span style="white-space:nowrap;">-${fmt(state.affDisc)}원</span></div>` : '');
   }
   document.getElementById('sumDisc').textContent = `-${fmt(totalDisc)}원`;
 
