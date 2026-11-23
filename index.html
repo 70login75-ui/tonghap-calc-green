@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V2.9</div>
+      <div class="ver-pill">제작자 손영곤 V3.0</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -1088,8 +1088,7 @@ function recalc() {
   const totalDisc = finalWiredDisc + bRes.mobDiscTotal + sel25Sum + youthTotal + welfareMobTotal + state.affDisc;
 
   document.getElementById('sumMonthly').innerHTML = `${fmt(totalMonthly)}<span>원 / 월</span>`;
-  document.getElementById('sumGiftLbl').textContent = `현금지원 ${fmt(gift)}원 반영 시`;
-  document.getElementById('sumReal').textContent = `실 체감 월 ${fmt(realMonthly)}원`;
+
   const wiredSupply = Math.round(wiredFinal / 1.1);
   const wiredVat = wiredFinal - wiredSupply;
   document.getElementById('sumWired').textContent = `${fmt(wiredFinal)}원`;
