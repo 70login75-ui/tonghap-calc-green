@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V2.5</div>
+      <div class="ver-pill">제작자 손영곤 V2.6</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -196,11 +196,7 @@
         </div>
         <div>
           <div class="field-lbl">추가 TV (2대째)</div>
-          <select class="sel" id="extraTvSelect" onchange="recalc()">
-            <option value="0">추가 없음 (0원)</option>
-            <option value="8800">기본형 추가 (+8,800원)</option>
-            <option value="11000">고급형 추가 (+11,000원)</option>
-          </select>
+          <select class="sel" id="extraTvSelect" onchange="recalc()"></select>
         </div>
       </div>
       <div class="grid2">
@@ -413,6 +409,13 @@ const CARRIERS = {
       { label: 'AI 4 vision (8,800원)', price: 8800 },
       { label: 'AI Sound Max (8,800원)', price: 8800 }
     ],
+    extraTvs: [
+      { label: '추가 없음 (0원)', price: 0 },
+      { label: 'B tv 이코노미 50%+Smart3 (10,450원)', price: 10450 },
+      { label: 'B tv 스탠다드 50%+Smart3 (12,100원)', price: 12100 },
+      { label: 'B tv All 50%+Smart3 (13,750원)', price: 13750 },
+      { label: 'B tv 스탠다드 50%+AI5케어 (11,550원)', price: 11550 }
+    ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const netBase = { 100: 4400, 500: 11000, 1000: 13200 }[speed] || 0;
       const tvBase = hasTv ? 1100 : 0;
@@ -462,6 +465,13 @@ const CARRIERS = {
       { label: 'AI 4 vision (8,800원)', price: 8800 },
       { label: 'AI Sound Max (8,800원)', price: 8800 }
     ],
+    extraTvs: [
+      { label: '추가 없음 (0원)', price: 0 },
+      { label: 'B tv 이코노미 50%+Smart3 (10,450원)', price: 10450 },
+      { label: 'B tv 스탠다드 50%+Smart3 (12,100원)', price: 12100 },
+      { label: 'B tv All 50%+Smart3 (13,750원)', price: 13750 },
+      { label: 'B tv 스탠다드 50%+AI5케어 (11,550원)', price: 11550 }
+    ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
       const netBase = cnt > 0 ? ({ 100: 4400, 500: 11000, 1000: 13200 }[speed] || 0) : 0;
@@ -507,6 +517,13 @@ const CARRIERS = {
       { label: '지니 TV 셋톱박스 4 (6,600원)', price: 6600 },
       { label: '지니 TV 셋톱박스 A2 기본 (7,700원)', price: 7700 },
       { label: '지니 TV 올인원 사운드바 (8,800원)', price: 8800 }
+    ],
+    extraTvs: [
+      { label: '추가 없음 (0원)', price: 0 },
+      { label: '지니TV 베이직 복수+셋톱A (10,670원)', price: 10670 },
+      { label: '지니TV 라이트 복수+셋톱A (11,220원)', price: 11220 },
+      { label: '지니TV 베이직 복수+A2케어 (12,870원)', price: 12870 },
+      { label: '지니TV 에센스 복수+셋톱3 (13,200원)', price: 13200 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
@@ -579,6 +596,13 @@ const CARRIERS = {
       { label: 'U+tv 사운드바 블랙 (6,600원)', price: 6600 },
       { label: 'U+tv 사운드바 블랙2 (8,800원)', price: 8800 }
     ],
+    extraTvs: [
+      { label: '추가 없음 (0원)', price: 0 },
+      { label: 'U+tv 실속형 복수+고급형 (11,000원)', price: 11000 },
+      { label: 'U+tv 실속형 복수+UHD4 (12,100원)', price: 12100 },
+      { label: 'U+tv 기본형 복수+UHD4 (13,200원)', price: 13200 },
+      { label: 'U+tv 프리미엄 복수+UHD4 (14,300원)', price: 14300 }
+    ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
       if (cnt === 0) return { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: [] };
@@ -628,6 +652,11 @@ const CARRIERS = {
       { label: 'sky All 기본 수신기 (1,100원)', price: 1100 },
       { label: '안드로이드/IPTV 수신기 (3,300원)', price: 3300 }
     ],
+    extraTvs: [
+      { label: '추가 없음 (0원)', price: 0 },
+      { label: 'sky All 복수할인 30%+수신기 (9,570원)', price: 9570 },
+      { label: 'sky 베이직 복수할인+수신기 (16,390원)', price: 16390 }
+    ],
     calcBundle: (speed, hasTv, plansList, ratio, tvPrice) => {
       const cnt = plansList.length;
       const netBase = cnt > 0 ? ({ 100: 2200, 200: 2200, 500: 3300 }[speed] || 0) : 0;
@@ -656,6 +685,12 @@ const CARRIERS = {
     settops: [
       { label: 'UHD 셋톱박스 (4,400원)', price: 4400 },
       { label: 'HD 셋톱박스 (2,200원)', price: 2200 }
+    ],
+    extraTvs: [
+      { label: '추가 없음 (0원)', price: 0 },
+      { label: '헬로tv 이코노미 복수+HD (8,800원)', price: 8800 },
+      { label: '헬로tv 이코노미 복수+UHD (11,000원)', price: 11000 },
+      { label: '헬로tv 뉴베이직 복수+UHD (11,000원)', price: 11000 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
       const cnt = plansList.length;
@@ -780,6 +815,8 @@ function populateSelects() {
   tvSel.innerHTML = c.tvs.map((t, i) => `<option value="${i}" ${i===1?'selected':''}>${t.label}</option>`).join('');
   const settopSel = document.getElementById('settopSelect');
   if (settopSel && c.settops) settopSel.innerHTML = c.settops.map((s, i) => `<option value="${i}" ${i===0?'selected':''}>${s.label}</option>`).join('');
+  const exSel = document.getElementById('extraTvSelect');
+  if (exSel && c.extraTvs) exSel.innerHTML = c.extraTvs.map((x, i) => `<option value="${x.price}" ${i===0?'selected':''}>${x.label}</option>`).join('');
 }
 
 function renderUsimLines() {
