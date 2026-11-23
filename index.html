@@ -93,7 +93,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V5.5</div>
+      <div class="ver-pill">제작자 손영곤 V5.6</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -984,20 +984,22 @@ function clearAllToZero() {
   if (document.getElementById('termYears')) document.getElementById('termYears').value = '3';
   if (document.getElementById('giftAmt')) document.getElementById('giftAmt').value = '0';
   if (document.getElementById('wifiSelect')) document.getElementById('wifiSelect').value = '0';
+  if (document.getElementById('extraTvSelect')) document.getElementById('extraTvSelect').selectedIndex = 0;
   if (document.getElementById('extraTvCount')) document.getElementById('extraTvCount').value = '1';
+  if (document.getElementById('settopSelect')) document.getElementById('settopSelect').selectedIndex = 0;
   if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = false;
   if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = false;
   if (document.getElementById('welfareType')) document.getElementById('welfareType').value = 'none';
   if (document.getElementById('ktMode')) document.getElementById('ktMode').value = 'contrib';
-  if (document.getElementById('skMode')) document.getElementById('skMode').value = 'even';
+  if (document.getElementById('skMode')) document.getElementById('skMode').value = 'equal';
   if (document.getElementById('lgMode')) document.getElementById('lgMode').value = 'cham';
   if (document.getElementById('helloMode')) document.getElementById('helloMode').value = 'uplus';
-  if (document.getElementById('skyDouble')) document.getElementById('skyDouble').value = 'none';
+  if (document.getElementById('skyDouble')) document.getElementById('skyDouble').selectedIndex = 0;
 }
 
 function resetQuote() {
-  selectCarrier('SKT', true);
-  showToast('견적이 0원으로 초기화되었습니다.');
+  selectCarrier(state.carrier || 'SKT', true);
+  showToast('현재 통신사의 모든 항목이 0원으로 초기화되었습니다.');
 }
 
 function selectCarrier(k, resetToZero) {
