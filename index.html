@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V3.7</div>
+      <div class="ver-pill">제작자 손영곤 V3.8</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -102,12 +102,12 @@
   <!-- TAB 1: 계산기 -->
   <div id="tab-calc">
     <div class="summary-box">
-      <div class="sum-row">
+      <div class="sum-row" style="align-items:flex-start;">
         <div>
           <div class="sum-label">결합 + 선택약정 적용 월 예상 청구</div>
           <div class="sum-price" id="sumMonthly">0<span>원 / 월</span></div>
         </div>
-        
+        <button class="btn-sub" style="padding:6px 12px;font-size:12.5px;border-color:#EF4444;color:#DC2626;background:#FEF2F2;border-radius:10px;white-space:nowrap;" onclick="resetQuote()">견적 초기화</button>
       </div>
       <div id="sumDetailBox" style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:14px;padding:13px 13px;font-size:14.5px;line-height:1.45;color:#111827;">
         <div style="border-bottom:1px solid #E2E8F0;padding-bottom:10px;margin-bottom:10px;">
@@ -813,6 +813,28 @@ function renderCarriers() {
   box.innerHTML = Object.keys(CARRIERS).map(k =>
     `<button class="chip ${state.carrier === k ? 'on' : ''}" onclick="selectCarrier('${k}')">${k}</button>`
   ).join('');
+}
+
+
+function resetQuote() {
+  state.affDisc = 0;
+  state.assignIdx = 0;
+  state.usim = [{ planIdx: 3, sel25: true }];
+  document.querySelectorAll('#affChips .chip').forEach((b, i) => b.classList.toggle('on', i === 0));
+  if (document.getElementById('termYears')) document.getElementById('termYears').value = '3';
+  if (document.getElementById('giftAmt')) document.getElementById('giftAmt').value = '450000';
+  if (document.getElementById('wifiSelect')) document.getElementById('wifiSelect').value = '0';
+  if (document.getElementById('extraTvCount')) document.getElementById('extraTvCount').value = '1';
+  if (document.getElementById('installWeekend')) document.getElementById('installWeekend').checked = false;
+  if (document.getElementById('installExempt')) document.getElementById('installExempt').checked = false;
+  if (document.getElementById('welfareSelect')) document.getElementById('welfareSelect').value = 'none';
+  if (document.getElementById('ktMode')) document.getElementById('ktMode').value = 'contrib';
+  if (document.getElementById('skMode')) document.getElementById('skMode').value = 'even';
+  if (document.getElementById('lgMode')) document.getElementById('lgMode').value = 'cham';
+  if (document.getElementById('helloMode')) document.getElementById('helloMode').value = 'uplus';
+  if (document.getElementById('skyDouble')) document.getElementById('skyDouble').value = 'none';
+  selectCarrier('SKT');
+  showToast('견적이 기본값으로 초기화되었습니다.');
 }
 
 function selectCarrier(k) {
