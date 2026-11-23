@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V2.2</div>
+      <div class="ver-pill">제작자 손영곤 V2.3</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -804,7 +804,7 @@ function renderUsimLines() {
         <div class="toggle-row">
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
             <input type="checkbox" class="chk" ${u.sel25 ? 'checked' : ''} onchange="toggleSel25(${idx}, this.checked)">
-            선택약정 25% 할인
+            <span>선택약정 25% 할인 <span id="lineSel25Amt-${idx}" style="color:#009A3E;font-weight:700;"></span></span>
           </label>
           <span id="linePay-${idx}" style="font-weight:900;color:#111827;">0원</span>
         </div>
@@ -973,6 +973,8 @@ function recalc() {
 
     const tagEl = document.getElementById(`lineDiscTag-${idx}`);
     const payEl = document.getElementById(`linePay-${idx}`);
+    const s25El = document.getElementById(`lineSel25Amt-${idx}`);
+    if (s25El) s25El.textContent = u.sel25 ? `(-${fmt(s25)}원)` : '(미적용)';
     if (tagEl) tagEl.textContent = `${u.sel25 ? '선택약정 25%' : '할인없음'}${mDisc > 0 ? ' + 결합 -' + fmt(mDisc) : ''}${yDisc > 0 ? ' + 청소년 -' + fmt(yDisc) : ''}${wMob > 0 ? ' + 복지 -' + fmt(wMob) : ''}`;
     if (payEl) payEl.textContent = `실 ${fmt(pay)}원`;
   });
