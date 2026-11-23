@@ -93,7 +93,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V5.4</div>
+      <div class="ver-pill">제작자 손영곤 V5.5</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -971,7 +971,7 @@ function switchTab(name, btn) {
 function renderCarriers() {
   const box = document.getElementById('carrierChips');
   box.innerHTML = Object.keys(CARRIERS).map(k =>
-    `<button class="chip ${state.carrier === k ? 'on' : ''}" onclick="selectCarrier('${k}', true)">${k}</button>`
+    `<button class="chip ${state.carrier === k ? 'on' : ''}" onclick="selectCarrier('${k}')">${k}</button>`
   ).join('');
 }
 
