@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V2.1</div>
+      <div class="ver-pill">제작자 손영곤 V2.2</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -209,12 +209,21 @@
     <select class="sel" id="settopSelect" onchange="recalc()"></select>
         </div>
         <div>
-          <div class="field-lbl">설치비 안내 (최초 1회)</div>
-          <select class="sel" id="installFeeSelect" onchange="recalc()">
-            <option value="인터넷+TV 약 56,100원 (통신사별 38,500~56,100원)">인터넷+TV (약 38,500~56,100원)</option>
-            <option value="인터넷 단독 36,300원">인터넷 단독 (36,300원)</option>
-            <option value="설치비 면제/프로모션 (0원)">설치비 면제 (0원)</option>
-          </select>
+          <div class="field-lbl" style="margin-top:8px;">설치비 (1회 청구 · 부가세 포함 · 자동 계산)</div>
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 12px;margin-top:4px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12.5px;color:#475569;font-weight:700;" id="installFeeDesc">인터넷+TV 동시 설치 (평일 주간)</span>
+        <span style="font-size:15px;color:#111827;font-weight:900;" id="installFeeAmt">56,100원</span>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:7px;font-size:12px;color:#334155;">
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+          <input type="checkbox" class="chk" id="installWeekendChk" onchange="recalc()"> 주말·야간 (+25% 할증)
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+          <input type="checkbox" class="chk" id="installExemptChk" onchange="recalc()"> 면제 프로모션 (0원)
+        </label>
+      </div>
+    </div>
         </div>
       </div>
     </div>
@@ -854,6 +863,42 @@ function calcWelfareMobile(type, baseAfterOther) {
   return 0;
 }
 
+
+function calcAutoInstallFee(carrier, hasTv, hasExtraTv, tvLabel) {
+  const exempt = (document.getElementById('installExemptChk') || {}).checked;
+  const weekend = (document.getElementById('installWeekendChk') || {}).checked;
+  if (exempt) {
+    return { amt: 0, text: '설치비 면제 프로모션 (0원)' };
+  }
+  let base = 36300;
+  let desc = '인터넷 단독 (평일 주간)';
+  if (carrier === 'KT') {
+    if (!hasTv) { base = 36000; desc = 'KT 인터넷 단독'; }
+    else if (!hasExtraTv) { base = 56200; desc = 'KT 인터넷+TV 동시'; }
+    else { base = 71600; desc = 'KT 인터넷+TV 2대'; }
+  } else if (carrier === 'LG U+') {
+    if (!hasTv) { base = 36300; desc = 'LG U+ 인터넷 단독'; }
+    else if (!hasExtraTv) { base = 56100; desc = 'LG U+ 인터넷+TV 동시'; }
+    else { base = 78100; desc = 'LG U+ 인터넷+TV 2대'; }
+  } else if (carrier === '스카이라이프') {
+    if (!hasTv) { base = 36300; desc = '스카이라이프 인터넷 단독'; }
+    else if ((tvLabel || '').includes('All')) { base = hasExtraTv ? 51700 : 36300; desc = '스카이라이프 All 결합'; }
+    else { base = hasExtraTv ? 63900 : 48500; desc = '스카이라이프 IPTV 결합'; }
+  } else if (carrier === 'LG헬로') {
+    if (!hasTv) { base = 22000; desc = 'LG헬로 인터넷 단독'; }
+    else if (!hasExtraTv) { base = 44000; desc = 'LG헬로 인터넷+TV 동시'; }
+    else { base = 59400; desc = 'LG헬로 인터넷+TV 2대'; }
+  } else {
+    // SKB, SKT
+    if (!hasTv) { base = 36300; desc = `${carrier} 인터넷 단독`; }
+    else if (!hasExtraTv) { base = 56100; desc = `${carrier} 인터넷+TV 동시`; }
+    else { base = 73700; desc = `${carrier} 인터넷+TV 2대`; }
+  }
+  const finalAmt = weekend ? Math.round(base * 1.25) : base;
+  const timeTag = weekend ? '주말·야간 +25%' : '평일 주간';
+  return { amt: finalAmt, text: `${desc} · ${timeTag} (${fmt(finalAmt)}원)` };
+}
+
 function recalc() {
   const c = CARRIERS[state.carrier];
   const plans = getActivePlans();
@@ -869,7 +914,12 @@ function recalc() {
   if (settopSelEl) settopSelEl.disabled = (tvObj.price === 0);
   const settopObj = (c.settops && settopSelEl) ? (c.settops[parseInt(settopSelEl.value, 10)] || c.settops[0]) : { label: '기본', price: 0 };
   const settopAdd = (tvObj.price > 0 ? (settopObj.price || 0) : 0);
-  const installFee = (document.getElementById('installFeeSelect') || {}).value || '';
+  const instObj = calcAutoInstallFee(state.carrier, tvObj.price > 0, extraTv > 0, tvObj.label);
+  const installFee = instObj.text;
+  const ifDescEl = document.getElementById('installFeeDesc');
+  const ifAmtEl = document.getElementById('installFeeAmt');
+  if (ifDescEl) ifDescEl.textContent = instObj.text.replace(/ \([^)]+\)$/, '');
+  if (ifAmtEl) ifAmtEl.textContent = `${fmt(instObj.amt)}원`;
   const gift = parseInt(document.getElementById('giftAmt').value, 10) || 0;
   const wType = (document.getElementById('welfareType') || {}).value || 'none';
 
@@ -1120,7 +1170,7 @@ function saveQuoteItem() {
     wifi: document.getElementById('wifiSelect').value,
     extraTv: document.getElementById('extraTvSelect').value,
     settop: document.getElementById('settopSelect').value,
-    installFee: document.getElementById('installFeeSelect').value,
+    installWeekend: (document.getElementById('installWeekendChk') || {}).checked || false, installExempt: (document.getElementById('installExemptChk') || {}).checked || false,
     welfareType: document.getElementById('welfareType').value,
     affDisc: state.affDisc,
     usim: JSON.parse(JSON.stringify(state.usim)),
@@ -1183,7 +1233,7 @@ function loadQuoteItem(idx) {
   document.getElementById('wifiSelect').value = q.wifi;
   document.getElementById('extraTvSelect').value = q.extraTv;
   document.getElementById('settopSelect').value = q.settop;
-  document.getElementById('installFeeSelect').value = q.installFee;
+  if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = !!q.installWeekend; if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = !!q.installExempt;
   document.getElementById('welfareType').value = q.welfareType;
   state.affDisc = q.affDisc || 0;
   document.querySelectorAll('#affChips .chip').forEach(b => {
