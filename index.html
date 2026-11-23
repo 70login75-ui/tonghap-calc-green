@@ -1357,7 +1357,7 @@ function recalc() {
   const totalMonthly = Math.max(0, totalBeforeAff - state.affDisc);
   const giftMonthly = Math.round(gift / (years * 12));
   const realMonthly = Math.max(0, totalMonthly - giftMonthly);
-  const totalDisc = finalWiredDisc + bRes.mobDiscTotal + sel25Sum + youthTotal + welfareMobTotal + state.affDisc;
+  const totalDisc = (Number(finalWiredDisc)||0) + (Number(bRes.mobDiscTotal)||0) + (Number(sel25Sum)||0) + (Number(youthTotal)||0) + (Number(welfareMobTotal)||0) + (Number(state.affDisc)||0);
 
   document.getElementById('sumMonthly').innerHTML = `${fmt(totalMonthly)}<span>원 / 월</span>`;
 
