@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V3.1</div>
+      <div class="ver-pill">제작자 손영곤 V3.2</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -1108,8 +1108,10 @@ function recalc() {
   const wiredSupply = Math.round(wiredFinal / 1.1);
   const wiredVat = wiredFinal - wiredSupply;
   const wParts = [];
-  if (wiredCombDisc > 0) wParts.push(`결합 -${fmt(wiredCombDisc)}`);
-  if (welfWired > 0) wParts.push(`복지 -${fmt(welfWired)}`);
+  const wCombAmt = useWelfareWired ? 0 : bundleWiredDisc;
+  const wWelfAmt = useWelfareWired ? welfareWiredDisc : 0;
+  if (wCombAmt > 0) wParts.push(`결합 -${fmt(wCombAmt)}`);
+  if (wWelfAmt > 0) wParts.push(`복지 -${fmt(wWelfAmt)}`);
   const wDetailTxt = wParts.length ? wParts.join(' · ') : '적용된 할인 없음';
 
   const wTitleEl = document.getElementById('sumWiredTitle');
