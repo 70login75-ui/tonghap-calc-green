@@ -1278,7 +1278,7 @@ function recalc() {
   const wType = (document.getElementById('welfareType') || {}).value || 'none';
 
   const plansList = state.usim.map(u => u.planIdx === -1 ? { label: `직접입력 (${fmt(u.customPrice || 0)}원)`, price: (u.customPrice || 0) } : (plans[u.planIdx] || plans[0]));
-  const bRes = netObj.speed === 0 ? { netDisc: 0, tvDisc: 0, perLine: plansList.map(() => 0), note: '' } : c.calcBundle(netObj.speed, tvObj.price > 0, plansList, ratio, tvObj.price);
+  const bRes = netObj.speed === 0 ? { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: plansList.map(() => 0), note: '' } : c.calcBundle(netObj.speed, tvObj.price > 0, plansList, ratio, tvObj.price);
 
   // 유선 복지 감면 (기초연금 제외, 유선 결합과 중복 불가 -> 더 큰 쪽 적용)
   let wNetDisc = 0, wTvDisc = 0;
