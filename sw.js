@@ -1,4 +1,4 @@
-const CACHE = 'tonghap-calc-v4.0';
+const CACHE = 'tonghap-calc-v4.1';
 self.addEventListener('install', e => {
   self.skipWaiting();
 });

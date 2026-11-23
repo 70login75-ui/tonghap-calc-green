@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <template>
+    id: MOBFM001C01
+    workid: TCMN046
+    title: 404 페이지
+    menu: 공통 > 404 페이지
+    publish: 이진우
+    publishVersion: 0.8_20251112
+    rework: 2025.11.19
+    status: 완료
+    etc: workid 수정
+  </template>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>페이지를 찾을 수 없습니다. | 신한카드</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="description">
+  <meta name="keywords">
+  <link rel="shortcut icon" type="image/x-icon" href="/pconts/static/favicons/favicon.ico">
+  <link type="image/x-icon" rel="apple-touch-icons" href="/pconts/static/favicons/icon_196.png">
+
+  <link rel="stylesheet" crossorigin href="/pconts/static/css/base.css">
+
+  <!-- 메뉴별 CSS 연결 -->
+  <script src="/mob/static/js/mutable/script-hub.js"></script>
+  <script src="/mob/static/js/mutable/css-hub.js"></script>
+
+
+
+
+  <script>
+  (async () => {
+    try {
+      await CssHub.loadAndNotify("core", [
+        { type: "kit", name: "mobcore" }
+        
+      ]);
+    } catch (e) {
+      console.error("load error:", e);
+    }
+    try {
+      await ScriptHub.loadAndNotify("core", [
+        { type: "kit", name: "mobcore" }
+        
+      ]);
+    } catch (e) {
+      console.error("load error:", e);
+    }
+  })();
+</script>
+
+  <script>
+    window.pageBreadcrumb = [
+      { text: "404", url: "#" }
+    ];
+  </script>
+
+
+
+</head>
+
+<body>
+  <div class="app">
+    <!-- 공통 HEADER inject -->
+    <header class="shc-header" data-bind-include="cmmHeader" data-type="hidden"></header>
+
+
+    <!-- Main Content -->
+    <main id="shcMainContent" class="shc-main valign--middle">
+      <section class="shc-section shc-error">
+        <picture class="shc-error__img" aria-hidden="true">
+          <source data-srcset="/pconts/static/images/error/unavailable.webp" type="image/webp"><img
+            src="/pconts/static/images/error/unavailable.png" alt="">
+        </picture>
+        <h1 class="shc-error__title">요청한 페이지를 찾을 수 없어요</h1>
+        <p>잘못된 경로로 접근했거나 페이지가 삭제됐어요.</p>
+      </section>
+
+      <section class="shc-cta-area">
+        <div class="shc-btn-group">
+          <a href="/pconts/html/main.html" class="shc-btn theme-primary size-xl errorView" type="button">
+            <span class="shc-btn__text">홈으로 이동</span>
+          </a>
+        </div>
+      </section>
+
+    </main>
+    <!-- 공통 FOOTER inject -->
+    <!-- <footer data-bind-include="cmmFooter" class="shc-footer"></footer>
+ -->
+  </div>
+
+  <script>
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty("--vh", vh + "px");
+  </script>
+
+</body>
+
+</html>
