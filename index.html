@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V1.9</div>
+      <div class="ver-pill">제작자 손영곤 V2.0</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -95,6 +95,10 @@
     </div>
   </div>
 
+  <div id="pwaInstallBar" style="display:none;margin:10px 14px 0;background:#111827;color:#fff;border-radius:12px;padding:10px 14px;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,0.12);">
+    <div style="font-size:12px;font-weight:700;line-height:1.35;">📲 마크 없는 단독 앱으로 설치할 수 있어요</div>
+    <button id="pwaInstallBtn" style="flex-shrink:0;background:#03C75A;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;">앱 설치</button>
+  </div>
   <!-- TAB 1: 계산기 -->
   <div id="tab-calc">
     <div class="summary-box">
@@ -1160,6 +1164,26 @@ updateQuoteCount();
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const bar = document.getElementById('pwaInstallBar');
+  if (bar) bar.style.display = 'flex';
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      const bar = document.getElementById('pwaInstallBar');
+      if (bar) bar.style.display = 'none';
+    });
+  }
+});
 </script>
 </body>
 </html>
