@@ -93,7 +93,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V5.7</div>
+      <div class="ver-pill">제작자 손영곤 V5.8</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -139,6 +139,7 @@
         <button class="btn-sub" style="padding:9px;font-size:12.5px;border-color:#03C75A;color:#009A3E;background:#E8FBF0;" onclick="openQuoteModal('save')">💾 현재 견적 저장</button>
         <button class="btn-sub" style="padding:9px;font-size:12.5px;border-color:#7C3AED;color:#6D28D9;background:#F3EEFF;" id="loadQuoteBtn" onclick="openQuoteModal('load')">📂 상담내역 불러오기 (0)</button>
       </div>
+      <button class="btn-sub" style="width:100%;margin-top:8px;padding:10px;font-size:13px;border-color:#2563EB;color:#1D4ED8;background:#EFF6FF;" onclick="sendQuoteToCrm()">📋 통합고객관리로 바로 등록</button>
     </div>
 
     <div class="card">
@@ -1732,6 +1733,62 @@ function loadQuoteItem(idx) {
   recalc();
   closeQuoteModal();
   showToast(`'${q.title}' 상담내역을 불러왔습니다!`);
+}
+
+function sendQuoteToCrm() {
+  recalc();
+  const lr = state.lastResult || { carrier: state.carrier, years: 3, netLabel: '', tvLabel: '', wiredFinal: 0, usimCount: 0, usimFinalSum: 0, affDisc: 0, installFee: 0, totalMonthly: 0, gift: 0, realMonthly: 0 };
+  const carrierMap = { 'LG헬로': 'LG헬로비전' };
+  const crmCarrier = carrierMap[state.carrier] || state.carrier;
+  const netIdx = document.getElementById('netSelect').value;
+  const tvIdx = document.getElementById('tvSelect').value;
+  const hasNet = netIdx !== '-1' && netIdx !== '';
+  const hasTv = tvIdx !== '0' && tvIdx !== '';
+  const hasUsim = state.usim.length > 0;
+  let crmProduct = '인터넷+TV';
+  if (!hasNet && hasUsim) crmProduct = '유심/무선';
+  else if (hasNet && hasUsim) crmProduct = '인터넷+TV+휴대폰결합';
+  else if (hasNet && !hasTv) crmProduct = '인터넷 단독';
+
+  const cleanLbl = s => String(s || '').replace(/\s*\([^)]*원[^)]*\)/g, '').trim();
+  const parts = [];
+  if (hasNet && lr.netLabel && !lr.netLabel.includes('선택 안함')) parts.push(cleanLbl(lr.netLabel));
+  if (hasTv && lr.tvLabel && !lr.tvLabel.includes('미가입')) parts.push(cleanLbl(lr.tvLabel));
+  const planName = parts.join(' + ') || (hasUsim ? `유심 ${state.usim.length}회선` : '');
+
+  const wifiVal = document.getElementById('wifiSelect').value;
+  const ap = wifiVal === '1' ? '신청' : '미신청';
+  const activePlans = getActivePlans();
+  const sims = state.usim.slice(0, 4).map(u => {
+    const p = activePlans[u.planIdx] || activePlans[0] || { name: '' };
+    return {
+      carrier: crmCarrier,
+      plan: p.name || '',
+      term: u.sel25 ? '24개월(선약)' : '무약정'
+    };
+  });
+  const memoLines = [
+    `[통신비서 견적] 월 예상 ${fmt(lr.totalMonthly)}원 (인터넷·TV ${fmt(lr.wiredFinal)}원${hasUsim ? ` + 유심 ${lr.usimCount}회선 ${fmt(lr.usimFinalSum)}원` : ''})`,
+  ];
+  if (lr.gift > 0) memoLines.push(`현금지원 ${fmt(lr.gift)}원 (실 체감 월 ${fmt(lr.realMonthly)}원)`);
+  if (lr.affDisc > 0) memoLines.push(`제휴카드 추가할인 -${fmt(lr.affDisc)}원`);
+
+  const payload = {
+    carrier: crmCarrier,
+    product: crmProduct,
+    planName,
+    termMonths: String((lr.years || 3) * 12),
+    ap,
+    monthlyFee: String(lr.totalMonthly || 0),
+    installFee: String(lr.installFee || 0),
+    gift: String(lr.gift || 0),
+    sims,
+    memo: memoLines.join(' · ')
+  };
+  try { localStorage.setItem('tonghap_calc_to_crm_v1', JSON.stringify(payload)); } catch(e) {}
+  const url = 'https://70login75-ui.github.io/tonghap-crm/?from_calc=1&add_calc=' + encodeURIComponent(JSON.stringify(payload));
+  const w = window.open(url, '_blank');
+  if (!w) location.href = url;
 }
 
 function deleteQuoteItem(idx) {
