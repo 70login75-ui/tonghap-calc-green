@@ -93,7 +93,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V5.6</div>
+      <div class="ver-pill">제작자 손영곤 V5.7</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -528,6 +528,20 @@
           <div style="font-size:12px;font-weight:800;color:#DC2626;margin-top:3px;">전월실적 인정: 관리비 ❌ (제외) · 통신비 ❌ (제외)</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="quoteModal" class="hide" onclick="if(event.target===this)closeQuoteModal()" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:9990;align-items:center;justify-content:center;padding:16px;">
+    <div style="width:100%;max-width:440px;background:#fff;border-radius:18px;padding:18px 16px;box-shadow:0 20px 50px rgba(0,0,0,.22);max-height:85vh;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:16px;font-weight:900;color:#111827;">💾 상담 견적 저장 · 불러오기</div>
+        <button onclick="closeQuoteModal()" style="border:none;background:#F3F4F6;color:#374151;width:30px;height:30px;border-radius:999px;font-size:15px;font-weight:900;cursor:pointer;">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input id="quoteTitleInp" type="text" placeholder="고객명 또는 메모 (비우면 자동 제목)" onkeydown="if(event.key==='Enter')saveQuoteItem()" style="flex:1;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13.5px;outline:none;">
+        <button onclick="saveQuoteItem()" style="padding:10px 14px;border:none;border-radius:10px;background:#03C75A;color:#fff;font-size:13.5px;font-weight:900;cursor:pointer;white-space:nowrap;">저장</button>
+      </div>
+      <div id="quoteListBox" style="overflow-y:auto;max-height:52vh;padding-right:2px;"></div>
     </div>
   </div>
 
@@ -1615,9 +1629,14 @@ function closeQuoteModal() {
   modal.style.display = 'none';
 }
 
+function escQuoteHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+}
+
 function saveQuoteItem() {
   const inp = document.getElementById('quoteTitleInp');
-  const title = (inp.value || '').trim() || `${state.lastResult.carrier} 상담 (${state.lastResult.usimCount}회선)`;
+  const lr = state.lastResult || { carrier: state.carrier, usimCount: state.usim.length, totalMonthly: 0, realMonthly: 0 };
+  const title = (inp.value || '').trim() || `${lr.carrier} 상담 (${lr.usimCount}회선)`;
   const now = new Date();
   const savedAt = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const snap = {
@@ -1642,10 +1661,10 @@ function saveQuoteItem() {
     affDisc: state.affDisc,
     usim: JSON.parse(JSON.stringify(state.usim)),
     summary: {
-      carrierName: state.lastResult.carrier,
-      totalMonthly: state.lastResult.totalMonthly,
-      realMonthly: state.lastResult.realMonthly,
-      usimCount: state.lastResult.usimCount
+      carrierName: lr.carrier,
+      totalMonthly: lr.totalMonthly,
+      realMonthly: lr.realMonthly,
+      usimCount: lr.usimCount
     }
   };
   const list = getSavedQuotes();
@@ -1667,8 +1686,8 @@ function renderQuoteList() {
   box.innerHTML = list.map((q, idx) => `
     <div style="border:1px solid #E5E7EB;border-radius:12px;padding:11px 12px;margin-bottom:8px;background:#fff;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong style="font-size:13.5px;color:#111827;">${q.title}</strong>
-        <span style="font-size:11px;color:#6B7280;">${q.savedAt}</span>
+        <strong style="font-size:13.5px;color:#111827;">${escQuoteHtml(q.title)}</strong>
+        <span style="font-size:11px;color:#6B7280;">${escQuoteHtml(q.savedAt)}</span>
       </div>
       <div style="font-size:12px;color:#4B5563;margin:4px 0 8px;">
         ${q.summary.carrierName} · 유심 ${q.summary.usimCount}회선 · 월 <b>${fmt(q.summary.totalMonthly)}원</b> (실 체감 ${fmt(q.summary.realMonthly)}원)
@@ -1703,6 +1722,7 @@ function loadQuoteItem(idx) {
   if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = !!q.installWeekend; if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = !!q.installExempt;
   document.getElementById('welfareType').value = q.welfareType;
   state.affDisc = q.affDisc || 0;
+  renderAffCardList();
   document.querySelectorAll('#affChips .chip').forEach(b => {
     const oc = b.getAttribute('onclick') || '';
     b.classList.toggle('on', oc.includes(`setAff(${state.affDisc},`));
