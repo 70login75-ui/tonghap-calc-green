@@ -86,7 +86,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V3.5</div>
+      <div class="ver-pill">제작자 손영곤 V3.6</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -258,6 +258,7 @@
         2. 휴대폰 유심 결합 (공시지원금 없음)
         <span class="sec-badge" style="background:#F3EEFF;color:#6D28D9;" id="usimCountBadge">1회선</span>
       </div>
+      <div id="usimDistBox" style="margin-bottom:10px;"></div>
       <div id="usimLines"></div>
       <button class="btn-sub" style="width:100%;margin-top:8px;padding:10px;border-color:#7C3AED;background:#F3EEFF;color:#6D28D9;" onclick="addUsimLine()">+ 유심 회선 추가 (최대 4회선)</button>
     </div>
@@ -849,6 +850,46 @@ function populateSelects() {
   if (exSel && c.extraTvs) exSel.innerHTML = c.extraTvs.map((x, i) => `<option value="${x.price}" ${i===0?'selected':''}>${x.label}</option>`).join('');
 }
 
+function canAssignMode() {
+  const hM = (document.getElementById('helloMode') || {}).value || '';
+  if (state.carrier === 'KT' || state.carrier === 'SKT' || state.carrier === 'SKB') return true;
+  if (state.carrier === 'LG헬로' && hM === 'skt') return true;
+  return false;
+}
+function setUsimDistMode(toAssign) {
+  if (state.carrier === 'KT') {
+    const el = document.getElementById('ktMode');
+    if (el) el.value = toAssign ? 'assign1' : 'contrib';
+  } else {
+    const el = document.getElementById('skMode');
+    if (el) el.value = toAssign ? 'assign1' : 'equal';
+  }
+  renderUsimLines();
+  recalc();
+}
+function renderUsimDistBox() {
+  const el = document.getElementById('usimDistBox');
+  if (!el) return;
+  if (!canAssignMode()) {
+    el.innerHTML = `<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:9px 11px;font-size:12.5px;font-weight:800;color:#475569;">결합 할인 배분: 현재 통신사는 회선별 약관 고정 할인(<span style="color:#0F172A;">각각 할인</span>)이 자동 적용됩니다.</div>`;
+    return;
+  }
+  const assignOn = isAssignMode();
+  const aIdx = Math.min(state.assignIdx || 0, Math.max(0, state.usim.length - 1));
+  const lineBtns = state.usim.map((_, i) => `
+    <button type="button" onclick="setAssignLine(${i})" style="flex:1;min-width:62px;padding:7px 4px;border-radius:9px;font-size:13px;font-weight:900;cursor:pointer;border:1.5px solid ${i===aIdx?'#7C3AED':'#D1D5DB'};background:${i===aIdx?'#EDE9FE':'#fff'};color:${i===aIdx?'#6D28D9':'#374151'};">${i===aIdx?'★ ':''}${i+1}회선</button>
+  `).join('');
+  el.innerHTML = `
+    <div style="background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:10px 11px;">
+      <div style="font-size:13.5px;font-weight:900;color:#0F172A;margin-bottom:7px;">결합 할인 배분 방식 (1~4회선)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button type="button" onclick="setUsimDistMode(false)" style="padding:8px 6px;border-radius:9px;font-size:13px;font-weight:900;cursor:pointer;border:1.5px solid ${!assignOn?'#03C75A':'#D1D5DB'};background:${!assignOn?'#E8FBF0':'#fff'};color:${!assignOn?'#009A3E':'#374151'};">각각 할인 (균등/기여도)</button>
+        <button type="button" onclick="setUsimDistMode(true)" style="padding:8px 6px;border-radius:9px;font-size:13px;font-weight:900;cursor:pointer;border:1.5px solid ${assignOn?'#03C75A':'#D1D5DB'};background:${assignOn?'#E8FBF0':'#fff'};color:${assignOn?'#009A3E':'#374151'};">1인 지정할인 (몰아주기)</button>
+      </div>
+      ${assignOn ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;"><div style="font-size:12.5px;font-weight:800;color:#374151;margin-bottom:6px;">지정할인 받을 회선 선택:</div><div style="display:flex;gap:5px;flex-wrap:wrap;">${lineBtns}</div></div>` : ''}
+    </div>
+  `;
+}
 function setAssignLine(idx) {
   state.assignIdx = idx;
   renderUsimLines();
@@ -864,6 +905,7 @@ function isAssignMode() {
   return false;
 }
 function renderUsimLines() {
+  renderUsimDistBox();
   const plans = getActivePlans();
   const box = document.getElementById('usimLines');
   document.getElementById('usimCountBadge').textContent = state.usim.length + '회선';
