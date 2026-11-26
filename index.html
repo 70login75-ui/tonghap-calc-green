@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V7.0</div>
+      <div class="ver-pill">제작자 손영곤 V7.1</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -130,7 +130,71 @@
   </div>
   <!-- TAB 1: 계산기 -->
   <div id="tab-calc">
-    <div class="summary-box">
+    <div class="summary-box" id="sumCardV71" style="padding:13px 14px;">
+      <!-- ── V7.1c 헤더: 월 예상청구금액 + VAT 토글 + 견적 초기화 ── -->
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:15.5px;font-weight:900;color:#334155;letter-spacing:-0.6px;white-space:nowrap;flex-shrink:0;">월 예상청구금액</span>
+        <span id="v71VatToggle" role="group" aria-label="부가세 표시 전환" style="display:inline-flex;flex-shrink:0;border:1px solid #CBD5E1;border-radius:8px;overflow:hidden;background:#fff;">
+          <button type="button" id="v71VatIn" onclick="setVatMode('in')" style="border:0;background:#009A3E;color:#fff;font-size:10.5px;font-weight:900;padding:4px 6px;line-height:1.15;cursor:pointer;white-space:nowrap;">VAT 포함</button>
+          <button type="button" id="v71VatOut" onclick="setVatMode('out')" style="border:0;background:#fff;color:#64748B;font-size:10.5px;font-weight:900;padding:4px 6px;line-height:1.15;cursor:pointer;white-space:nowrap;border-left:1px solid #CBD5E1;">VAT 미포함</button>
+        </span>
+        <button class="btn-sub" style="margin-left:auto;flex-shrink:0;padding:5px 7px;font-size:10.5px;border-color:#EF4444;color:#DC2626;background:#FEF2F2;border-radius:9px;white-space:nowrap;" onclick="resetQuote()">견적 초기화</button>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:5px;margin-top:3px;white-space:nowrap;">
+        <span id="v71Monthly" style="font-size:31px;font-weight:900;color:#009A3E;letter-spacing:-1.4px;line-height:1.05;">0</span>
+        <span style="font-size:12px;font-weight:900;color:#334155;">원 / 월</span>
+      </div>
+
+      <!-- ── ① 인터넷·TV ─────────────────────────────────────── -->
+      <div style="margin-top:9px;padding-top:8px;border-top:1px dashed #DDD6FE;">
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-size:11.5px;font-weight:900;color:#6D28D9;">① 인터넷·TV</span>
+          <span style="font-size:9px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:0.5px 5px;">3년 약정</span>
+          <span id="v71WiredName" style="margin-left:auto;min-width:0;font-size:9px;font-weight:800;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:205px;"></span>
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:5px;">
+          <span style="font-size:11px;font-weight:900;color:#334155;white-space:nowrap;">인터넷·TV 요금 <span style="font-size:9.5px;font-weight:800;color:#94A3B8;">(기준 <b id="v71WiredOrig" style="font-size:9.5px;font-weight:900;color:#64748B;">0</b>)</span></span>
+          <b id="v71NetTvFinal" style="font-size:15px;font-weight:900;color:#009A3E;white-space:nowrap;">0원</b>
+        </div>
+        <div id="v71WiredChips" style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px;"></div>
+        <div id="v71WiredExtra" style="display:flex;align-items:baseline;justify-content:flex-start;flex-wrap:wrap;gap:0;margin-top:5px;font-size:10.5px;font-weight:800;color:#475569;"></div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid #E2E8F0;">
+          <span style="font-size:11.5px;font-weight:900;color:#0F172A;white-space:nowrap;">인터넷·TV 실 청구요금</span>
+          <span style="white-space:nowrap;">
+            <span id="v71WiredPill" style="font-size:9px;font-weight:900;color:#009A3E;background:#E8FBF0;border:1px solid #BBF7D0;border-radius:5px;padding:0.5px 4px;margin-right:3px;">VAT 포함</span>
+            <b id="v71WiredSub" style="font-size:13.5px;font-weight:900;color:#009A3E;">0원</b>
+          </span>
+        </div>
+      </div>
+
+      <!-- ── ② 유심 (소계 줄 없음 — V7.1c) ───────────────────── -->
+      <div style="margin-top:7px;padding-top:7px;border-top:1px dashed #DDD6FE;">
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-size:11.5px;font-weight:900;color:#6D28D9;">② 유심</span>
+          <span id="v71UsimMode" style="font-size:9px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:0.5px 5px;">각각할인</span>
+          <span id="v71UsimCount" style="margin-left:auto;font-size:10px;font-weight:900;color:#64748B;">0회선</span>
+        </div>
+        <div id="v71UsimLines" style="display:flex;flex-direction:column;gap:5px;margin-top:5px;"></div>
+      </div>
+
+      <!-- ── 총 할인 (V7.1d: 총 합계 줄 삭제) ────────────────────── -->
+      <div style="margin-top:9px;padding-top:8px;border-top:1.5px solid #CBD5E1;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;">
+          <span style="font-size:11.5px;font-weight:900;color:#0F172A;white-space:nowrap;">총 할인 <span style="font-size:9.5px;font-weight:800;color:#94A3B8;">(기준 요금 대비)</span></span>
+          <b id="v71Disc" style="font-size:14.5px;font-weight:900;color:#DC2626;white-space:nowrap;">0원</b>
+        </div>
+        <div id="v71DiscBreak" style="font-size:9.5px;font-weight:800;color:#64748B;text-align:right;margin-top:1px;line-height:1.35;word-break:keep-all;"></div>
+      </div>
+
+      <!-- ── 버튼 ────────────────────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed #E5E7EB;">
+        <button class="btn-sub" style="padding:7px 4px;font-size:11px;border-color:#03C75A;color:#009A3E;background:#E8FBF0;border-radius:9px;" onclick="openQuoteModal('save')">💾 현재 견적 저장</button>
+        <button class="btn-sub" style="padding:7px 4px;font-size:11px;border-color:#7C3AED;color:#6D28D9;background:#F3EEFF;border-radius:9px;" id="loadQuoteBtn" onclick="openQuoteModal('load')">📂 상담내역 불러오기 (0)</button>
+      </div>
+      <button class="btn-sub" style="width:100%;margin-top:6px;padding:8px 4px;font-size:11.5px;border-color:#2563EB;color:#1D4ED8;background:#EFF6FF;border-radius:9px;" onclick="sendQuoteToCrm()">📋 통합고객관리로 바로 등록</button>
+
+      <!-- 기존 V7.0 요약 블록: 계산 스크립트가 그대로 참조하므로 숨김 유지(화면에는 안 보임) -->
+      <div id="v71Legacy" style="display:none !important;" aria-hidden="true">
       <div class="sum-row" style="align-items:flex-start;">
         <div>
           <div class="sum-label" style="word-break:keep-all;">결합 + 선택약정 적용 월 예상 청구 <span style="white-space:nowrap;">(부가세 포함)</span></div>
@@ -143,7 +207,7 @@
         <div style="border-bottom:1px solid #E2E8F0;padding-bottom:10px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="font-size:11.5px;color:#7C3AED;font-weight:900;letter-spacing:0.2px;">① 인터넷·TV 예상 금액</span>
-            <span id="sumWiredTermBadge" style="font-size:10px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:1px 6px;white-space:nowrap;">3년 약정 고정</span>
+            <span id="sumWiredTermBadge" style="font-size:10px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:1px 6px;white-space:nowrap;">3년 약정</span>
           </div>
           <div id="sumWiredBreakdown" style="display:flex;flex-direction:column;gap:7px;margin-top:5px;"></div>
           <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:2px 6px;margin-top:9px;padding-top:7px;border-top:1px dashed #CBD5E1;">
@@ -184,13 +248,14 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed #E5E7EB;">
         <button class="btn-sub" style="padding:9px;font-size:12.5px;border-color:#03C75A;color:#009A3E;background:#E8FBF0;" onclick="openQuoteModal('save')">💾 현재 견적 저장</button>
-        <button class="btn-sub" style="padding:9px;font-size:12.5px;border-color:#7C3AED;color:#6D28D9;background:#F3EEFF;" id="loadQuoteBtn" onclick="openQuoteModal('load')">📂 상담내역 불러오기 (0)</button>
+        <button class="btn-sub" style="padding:9px;font-size:12.5px;border-color:#7C3AED;color:#6D28D9;background:#F3EEFF;" id="loadQuoteBtnLegacy" onclick="openQuoteModal('load')">📂 상담내역 불러오기 (0)</button>
       </div>
       <button class="btn-sub" style="width:100%;margin-top:8px;padding:10px;font-size:13px;border-color:#2563EB;color:#1D4ED8;background:#EFF6FF;" onclick="sendQuoteToCrm()">📋 통합고객관리로 바로 등록</button>
     </div>
+    </div>
 
     <div class="card">
-      <div class="sec-title">1. 통신사 · 인터넷·TV 상품 <span class="sec-badge" id="termBadge">3년 약정 고정</span></div>
+      <div class="sec-title">1. 통신사 · 인터넷·TV 상품 <span class="sec-badge" id="termBadge">3년 약정</span></div>
       <div class="chips" id="carrierChips"></div>
       <div class="grid2">
         <div>
@@ -1547,14 +1612,163 @@ function calcAutoInstallFee(carrier, hasTv, extraTvCnt, tvLabel) {
   return { amt: finalAmt, text: `${desc} · ${timeTag} (${fmt(finalAmt)}원)` };
 }
 
+
+/* ════════════════════════════════════════════════════════════════
+   V7.1c 컴팩트 요약 카드 (시안) — 390px 모바일 기준
+   · 헤더 옆 [VAT 포함 | VAT 미포함] 토글: 카드 안 모든 금액을 즉시 전환
+   · 기존 요약 블록은 #v71Legacy 로 숨겨 두고, 계산 결과만 여기에 다시 그린다.
+   ════════════════════════════════════════════════════════════════ */
+function v71Set(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+function v71Supply(total) { return Math.round((Number(total) || 0) / 1.1); }
+
+/* VAT 표시 모드: 'in'(포함, 기본) | 'out'(미포함) */
+var v71VatMode = 'in';
+function v71VatOutMode() { return v71VatMode === 'out'; }
+/* 표시용 금액 변환 — 미포함 모드에서는 Math.round(금액 / 1.1) */
+function v71Amt(v) { const n = Math.round(Number(v) || 0); return v71VatOutMode() ? v71Supply(n) : n; }
+function v71Money(v) { return (Math.round(Number(v) || 0) === 0 ? '0' : fmt(v71Amt(v))) + '원'; }
+/* 회선 상세 문구(‘선택약정 -22,500 · 유심 결합 -5,500’) 안의 금액도 같은 기준으로 */
+function v71VatText(t) {
+  const src = String(t || '');
+  if (!v71VatOutMode()) return src;
+  return src.replace(/\d[\d,]*/g, m => fmt(v71Supply(Number(m.replace(/,/g, '')))));
+}
+
+var V71_BTN_ON = 'border:0;background:#009A3E;color:#fff;font-size:10.5px;font-weight:900;padding:4px 6px;line-height:1.15;cursor:pointer;white-space:nowrap;';
+var V71_BTN_OFF = 'border:0;background:#fff;color:#64748B;font-size:10.5px;font-weight:900;padding:4px 6px;line-height:1.15;cursor:pointer;white-space:nowrap;';
+
+function v71PaintVat() {
+  const out = v71VatOutMode();
+  const a = document.getElementById('v71VatIn');
+  const b = document.getElementById('v71VatOut');
+  if (a) a.style.cssText = out ? (V71_BTN_OFF + 'border-right:1px solid #CBD5E1;') : V71_BTN_ON;
+  if (b) b.style.cssText = out ? V71_BTN_ON : (V71_BTN_OFF + 'border-left:1px solid #CBD5E1;');
+  const pill = document.getElementById('v71WiredPill');
+  if (pill) {
+    pill.textContent = out ? 'VAT 미포함' : 'VAT 포함';
+    pill.style.cssText = out
+      ? 'font-size:9px;font-weight:900;color:#475569;background:#F1F5F9;border:1px solid #CBD5E1;border-radius:5px;padding:0.5px 4px;margin-right:3px;'
+      : 'font-size:9px;font-weight:900;color:#009A3E;background:#E8FBF0;border:1px solid #BBF7D0;border-radius:5px;padding:0.5px 4px;margin-right:3px;';
+  }
+}
+
+/* 토글 클릭 — 계산은 그대로 두고 마지막 계산값으로 카드만 다시 그린다 */
+function setVatMode(m) {
+  v71VatMode = (m === 'out') ? 'out' : 'in';
+  v71PaintVat();
+  if (window._v71LastData) renderCompactCard(window._v71LastData);
+}
+
+function renderCompactCard(D) {
+  window._v71LastData = D;
+  const incl = Math.round(Number(D.totalMonthly) || 0);
+  const wired = Math.round(Number(D.wiredFinal) || 0);
+  const usim = Math.round(Number(D.usimSubtotal) || 0);
+  v71PaintVat();
+
+  v71Set('v71Monthly', fmt(v71Amt(incl)));
+  v71Set('v71WiredName', D.netName || '');
+
+  v71Set('v71WiredOrig', fmt(v71Amt(D.netNcOrig)));
+  v71Set('v71NetTvFinal', v71Money(D.netTvFinal));
+  v71Set('v71WiredSub', v71Money(wired));
+
+  // ① 할인 칩 — 3년 약정 / 인터넷·TV 결합 / 유심 결합
+  const chips = [];
+  if (D.contractDisc > 0) chips.push(['3년 약정', D.contractDisc]);
+  if (D.welfareWired > 0) {
+    chips.push(['복지 감면', D.welfareWired]);
+  } else {
+    if (D.tvBundlePart > 0) chips.push(['인터넷·TV 결합', D.tvBundlePart]);
+    if (D.usimBundlePart > 0) chips.push(['유심 결합', D.usimBundlePart]);
+    if (D.bResTvDisc > 0) chips.push(['TV 추가할인', D.bResTvDisc]);
+  }
+  const chipEl = document.getElementById('v71WiredChips');
+  if (chipEl) {
+    chipEl.style.display = (incl === 0 && !chips.length) ? 'none' : 'flex';
+    chipEl.innerHTML = chips.length
+      ? chips.map(c => '<span style="font-size:9.5px;font-weight:900;color:#B91C1C;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:1px 5px;white-space:nowrap;">' +
+          c[0] + ' <b>-' + fmt(v71Amt(c[1])) + '</b></span>').join('')
+      : '<span style="font-size:9.5px;font-weight:800;color:#94A3B8;">적용된 할인 없음</span>';
+  }
+
+  // ① 와이파이 · 셋톱 — V7.1d: 왼쪽 기준으로 나란히 붙여 배치(양끝 벌림 해제)
+  const exEl = document.getElementById('v71WiredExtra');
+  if (exEl) {
+    const w = Math.round(Number(D.wifi) || 0), st = Math.round(Number(D.settopAdd) || 0);
+    const wItem = '<span style="white-space:nowrap;">와이파이 <b style="font-size:11.5px;font-weight:900;color:#009A3E;">' + fmt(v71Amt(w)) + '</b>' +
+      (D.wifiName ? ' <span style="font-size:9px;font-weight:800;color:#94A3B8;">' + D.wifiName + '</span>' : '') + '</span>';
+    const sItem = '<span style="white-space:nowrap;">셋톱 <b style="font-size:11.5px;font-weight:900;color:#009A3E;">' + fmt(v71Amt(st)) + '</b>' +
+      (D.settopName ? ' <span style="font-size:9px;font-weight:800;color:#94A3B8;">' + D.settopName + '</span>' : '') + '</span>';
+    const sep = '<span style="color:#CBD5E1;font-weight:900;padding:0 8px;">·</span>';
+    exEl.innerHTML = (w + st > 0)
+      ? wItem + sep + sItem
+      : '<span style="color:#94A3B8;">와이파이·셋톱 미신청 <b style="font-weight:900;">0원</b></span>';
+  }
+
+  // ② 유심 회선별 (소계 줄은 없음) — V7.1d: 할인 내역을 ①과 같은 칩으로
+  const rows = D.rows || [];
+  v71Set('v71UsimCount', '총 ' + rows.length + '회선');
+  v71Set('v71UsimMode', D.mode || '각각할인');
+  const tidy = t => String(t || '').replace(/유심결합/g, '유심 결합').replace(/지정결합/g, '지정 결합')
+                        .replace(/^복지$/, '복지 감면');
+  /* ① 할인 칩과 같은 모양(붉은 배경·테두리·9.5px) */
+  const chipHtml = (label, amt) => '<span style="font-size:9.5px;font-weight:900;color:#B91C1C;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:1px 5px;white-space:nowrap;">' +
+    tidy(label) + (amt > 0 ? ' <b>-' + fmt(v71Amt(amt)) + '</b>' : '') + '</span>';
+  const uEl = document.getElementById('v71UsimLines');
+  if (uEl) {
+    uEl.innerHTML = rows.length ? rows.map(r => {
+      const namePart = (Math.round(Number(r.orig) || 0) > 0)
+        ? ((r.planName ? r.planName + ' ' : '') + '(' + fmt(v71Amt(r.orig)) + ')')
+        : '요금제 미선택';
+      /* 할인 내역: 엔진이 넘긴 parts(`선택약정 -22,500`)를 이름·금액으로 나눠 칩으로 */
+      const pList = Array.isArray(r.parts) ? r.parts : [];
+      const chipsHtml = pList.map(t => {
+        const m = String(t).match(/^(.*?)\s*-([\d,]+)$/);
+        return m ? chipHtml(m[1], Number(m[2].replace(/,/g, ''))) : chipHtml(String(t), 0);
+      }).join('');
+      const hasLine = (Math.round(Number(r.orig) || 0) > 0 || Math.round(Number(r.pay) || 0) > 0);
+      return '<div>' +
+        '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;">' +
+          '<span style="font-size:12px;font-weight:900;color:#0F172A;white-space:nowrap;">' + (r.idx + 1) + '회선' +
+            ' <span style="font-size:10px;font-weight:800;color:#64748B;">' + namePart + '</span></span>' +
+          '<span style="white-space:nowrap;">' +
+            (r.disc > 0 ? '<span style="font-size:9.5px;font-weight:900;color:#DC2626;margin-right:6px;">-' + fmt(v71Amt(r.disc)) + '</span>' : '') +
+            '<b style="font-size:13px;font-weight:900;color:#009A3E;">' + v71Money(r.pay) + '</b>' +
+          '</span>' +
+        '</div>' +
+        (chipsHtml
+          ? '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">' + chipsHtml + '</div>'
+          : (hasLine ? '<div style="font-size:9.5px;font-weight:800;color:#94A3B8;margin-top:2px;">적용된 할인 없음</div>' : '')) +
+      '</div>';
+    }).join('') : '<div style="font-size:10px;font-weight:800;color:#94A3B8;">유심 회선 없음 · 0원</div>';
+  }
+
+  // 총 할인
+  const disc = Math.round(Number(D.totalDisc) || 0);
+  v71Set('v71Disc', disc > 0 ? '-' + fmt(v71Amt(disc)) + '원' : '0원');
+  const bd = [];
+  if (D.contractDisc > 0) bd.push('3년 약정 -' + fmt(v71Amt(D.contractDisc)));
+  const rest = disc - Math.round(Number(D.contractDisc) || 0);
+  const restNames = [];
+  const bundleTotal = (Number(D.tvBundlePart) || 0) + (Number(D.usimBundlePart) || 0) +
+                      (Number(D.bResTvDisc) || 0) + (Number(D.mobileDisc) || 0);
+  if (bundleTotal > 0) restNames.push('결합');
+  if (Number(D.sel25Sum) > 0) restNames.push('선택약정');
+  if ((Number(D.welfareMob) || 0) + (Number(D.welfareWired) || 0) > 0) restNames.push('복지');
+  if (Number(D.aff) > 0) restNames.push('카드');
+  if (rest > 0) bd.push((restNames.length ? restNames.join('·') : '할인') + ' -' + fmt(v71Amt(rest)));
+  v71Set('v71DiscBreak', bd.join(' · '));
+}
+
 function recalc() {
   const c = CARRIERS[state.carrier];
   const plans = getActivePlans();
   const years = 3;   // V6.6: 전 통신사 3년 약정 고정(사용자 지시) — 약정 선택 없음
   const ratio = years === 3 ? 1 : (years === 2 ? 0.5 : 0.25);
-  document.getElementById('termBadge').textContent = '3년 약정 고정';
+  document.getElementById('termBadge').textContent = '3년 약정';
   const sumTermBadge = document.getElementById('sumWiredTermBadge');
-  if (sumTermBadge) sumTermBadge.textContent = '3년 약정 고정';
+  if (sumTermBadge) sumTermBadge.textContent = '3년 약정';
 
   const netIdxVal = parseInt(document.getElementById('netSelect').value, 10);
   const netObj = netIdxVal === -1 ? { label: '선택 안함 (0원)', price: 0, speed: 0 } : (c.nets[netIdxVal] || c.nets[0]);
@@ -1732,7 +1946,7 @@ function recalc() {
     if (tagEl) tagEl.textContent = parts.length ? `(${parts.join(' · ')})` : (p.none ? '(요금제 미선택 · 0원)' : '(적용된 할인 없음)');
     if (payEl) payEl.textContent = `${fmt(pay)}원`;
     if (!window._sumUsimRows) window._sumUsimRows = [];
-    window._sumUsimRows.push({ idx, orig: p.price, disc: lineDiscSum, pay, detail: p.none ? '요금제 미선택 (0원)' : parts.join(' · ') });
+    window._sumUsimRows.push({ idx, orig: p.price, disc: lineDiscSum, pay, planName: String(p.label || '').replace(/\s*\([^)]*\)\s*$/, ''), parts: parts.slice(), detail: p.none ? '요금제 미선택 (0원)' : parts.join(' · ') });
   });
 
   const wInfo = document.getElementById('welfareInfo');
@@ -1886,6 +2100,25 @@ function recalc() {
   const totalVat = totalMonthly - totalSupply;   // 참고값 — 화면 표시는 vatSplitHtml(부가세 미포함 + 부가세 = 부가세 포함)
   const tvSubEl = document.getElementById('sumTotalVatSub');
   if (tvSubEl) tvSubEl.innerHTML = totalMonthly > 0 ? vatSplitHtml(totalMonthly, '(전 항목 부가세 포함)') : '부가세 미포함 0원 + 부가세 0원 = 부가세 포함 0원 (전 항목)';
+
+  // V7.1 컴팩트 요약 카드 시안 렌더
+  try {
+    renderCompactCard({
+      netNcOrig, contractDisc, tvBundlePart, usimBundlePart, bResTvDisc: (bRes.tvDisc || 0),
+      netTvFinal, netTvDisc, wifi, settopAdd, wiredFinal, usimSubtotal,
+      totalMonthly, totalDisc, aff: state.affDisc,
+      rows: window._sumUsimRows || [],
+      mode: isAssignMode() ? '지정할인' : '각각할인',
+      welfareWired: useWelfareWired ? welfareWiredDisc : 0,
+      welfareMob: welfareMobTotal || 0,
+      sel25Sum: sel25Sum || 0,
+      mobileDisc: bRes.mobDiscTotal || 0,
+      wifiName: (wifi > 0 ? String(wifiLabelOf(state.carrier, wifiKey)).replace(/\s*\([^)]*\)/g, '').replace(/^(?:KT|SKB|SKT|LG U\+|스카이라이프)\s*/, '').replace(/^WiFi\s*/, '') : ''),
+      settopName: (settopAdd > 0 ? String(settopObj.label || '').replace(/\s*\([^)]*\)\s*$/, '').replace(/^지니\s*TV\s*셋톱박스\s*/, '').replace(/^U\+tv\s*/, '') : ''),
+      netName: (netObj.price > 0 ? netObj.label.replace(/\s*\([^)]*\)\s*$/, '') : '인터넷 미선택') +
+               (tvObj.price > 0 ? ' + ' + tvObj.label.replace(/\s*\([^)]*\)\s*$/, '') : '')
+    });
+  } catch (e) { console.error('compact card error', e); }
 
   state.lastResult = {
     carrier: c.name, years, netLabel: netObj.label, tvLabel: (tvObj.price > 0 ? `${tvObj.label} + ${settopObj.label}` : tvObj.label) + (extraTv > 0 ? ` (+추가TV ${extraTvCnt}대 ${fmt(extraTv)}원)` : ''),
