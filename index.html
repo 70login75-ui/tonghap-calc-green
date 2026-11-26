@@ -69,6 +69,8 @@
   .cmp-val { font-size: 19px; font-weight: 900; color: #009A3E; margin: 4px 0; }
   .cmp-diff { margin-top: 10px; background: #EEF2FF; border: 1.5px solid #7C3AED; border-radius: 12px; padding: 12px; text-align: center; }
   .cmp-diff strong { color: #6D28D9; font-size: 17px; }
+  #cmpAName { padding: 10px 8px; font-size: 13.5px; text-overflow: ellipsis; }
+  @media (max-width: 360px) { #cmpAName { padding: 9px 6px; font-size: 12.5px; } }
 
   .card-info-row{padding:12px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:12px;align-items:center}
 .card-info-row:last-child{border-bottom:none}
@@ -121,7 +123,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V7.4</div>
+      <div class="ver-pill">제작자 손영곤 V7.5</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -273,7 +275,7 @@
         </div>
         <div>
           <div class="field-lbl">현금지원 (사은품 원)</div>
-          <input class="inp" type="number" id="giftAmt" value="0" step="10000" oninput="recalc()">
+          <input class="inp" type="text" inputmode="numeric" id="giftAmt" value="0" oninput="moneyInput(this); recalc()">
         </div>
       </div>
       <div>
@@ -425,11 +427,19 @@
         <div class="cmp-col">
           <div class="cmp-head">A안 (기존 이용)</div>
           <div class="field-lbl">통신사명</div>
-          <input class="inp" id="cmpAName" value="기존 통신사" oninput="recalcCompare()">
+          <select class="sel" id="cmpAName" onchange="recalcCompare()">
+            <option value="">통신사 선택</option>
+            <option value="SKT">SKT</option>
+            <option value="SKB">SKB</option>
+            <option value="KT">KT</option>
+            <option value="LG U+">LG U+</option>
+            <option value="LG헬로">LG헬로</option>
+            <option value="스카이라이프">스카이라이프</option>
+          </select>
           <div class="field-lbl">월 납부액 (원)</div>
-          <input class="inp" type="number" id="cmpAMonth" value="105000" step="1000" oninput="recalcCompare()">
+          <input class="inp" type="text" inputmode="numeric" id="cmpAMonth" value="105,000" oninput="moneyInput(this); recalcCompare()">
           <div class="field-lbl">현금지원 (원)</div>
-          <input class="inp" type="number" id="cmpAGift" value="0" step="10000" oninput="recalcCompare()">
+          <input class="inp" type="text" inputmode="numeric" id="cmpAGift" value="0" oninput="moneyInput(this); recalcCompare()">
           <div class="cmp-val" id="cmpAReal">105,000원/월</div>
         </div>
         <div class="cmp-col best">
@@ -437,9 +447,9 @@
           <div class="field-lbl">추천 통신사</div>
           <input class="inp" id="cmpBName" value="SKT 이동" oninput="recalcCompare()">
           <div class="field-lbl">월 납부액 (원)</div>
-          <input class="inp" type="number" id="cmpBMonth" value="81150" step="1000" oninput="recalcCompare()">
+          <input class="inp" type="text" inputmode="numeric" id="cmpBMonth" value="81,150" oninput="moneyInput(this); recalcCompare()">
           <div class="field-lbl">현금지원 (원)</div>
-          <input class="inp" type="number" id="cmpBGift" value="450000" step="10000" oninput="recalcCompare()">
+          <input class="inp" type="text" inputmode="numeric" id="cmpBGift" value="450,000" oninput="moneyInput(this); recalcCompare()">
           <div class="cmp-val" id="cmpBReal">68,650원/월</div>
         </div>
       </div>
@@ -1161,6 +1171,28 @@ let state = {
 };
 
 function fmt(n) { return Math.round(n).toLocaleString('ko-KR'); }
+// V7.5: 금액 입력칸 천 단위 콤마 — 입력은 숫자만, 표시는 1,000,000 형식
+function moneyDigits(s) { return String(s == null ? '' : s).replace(/[^0-9]/g, ''); }
+function numOf(s) { const d = moneyDigits(s); return d ? parseInt(d, 10) : 0; }
+function withComma(s) { const d = moneyDigits(s); return d ? d.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''; }
+function moneyInput(el) {
+  if (!el) return;
+  const raw = el.value;
+  const caret = (el.selectionStart == null) ? raw.length : el.selectionStart;
+  const before = moneyDigits(raw.slice(0, caret)).length;
+  const out = withComma(raw);
+  if (out === raw) return;
+  el.value = out;
+  let pos = 0;
+  if (before > 0) {
+    let cnt = 0;
+    pos = out.length;
+    for (let i = 0; i < out.length; i++) {
+      if (out[i] >= '0' && out[i] <= '9') { cnt++; if (cnt === before) { pos = i + 1; break; } }
+    }
+  }
+  try { el.setSelectionRange(pos, pos); } catch (e) {}
+}
 // V6.9b: `부가세 미포함(공급가) + 부가세 = 부가세 포함`을 한 줄로 — 좁은 화면에서는 조각(nowrap) 단위로만 줄바꿈
 function vatSplitHtml(total, tail) {
   const supply = Math.round(total / 1.1);
@@ -1453,7 +1485,7 @@ function renderUsimLines() {
           </div>
         </div>
         <select class="sel" onchange="updateUsimPlan(${idx}, this.value)">${planOpts}</select>
-        ${u.planIdx === -1 ? `<input class="inp" type="number" placeholder="월정액 입력 (원)" value="${u.customPrice || 33000}" step="1000" style="margin-top:6px;" oninput="updateCustomPrice(${idx}, this.value)">` : ''}
+        ${u.planIdx === -1 ? `<input class="inp" type="text" inputmode="numeric" placeholder="월정액 입력 (원)" value="${withComma(u.customPrice || 33000)}" style="margin-top:6px;" oninput="moneyInput(this); updateCustomPrice(${idx}, this.value)">` : ''}
         <div class="toggle-row">
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
             <input type="checkbox" class="chk" ${u.sel25 ? 'checked' : ''} onchange="toggleSel25(${idx}, this.checked)">
@@ -1500,7 +1532,7 @@ function updateUsimPlan(idx, v) {
   recalc();
 }
 function updateCustomPrice(idx, v) {
-  state.usim[idx].customPrice = parseInt(v, 10) || 0;
+  state.usim[idx].customPrice = numOf(v);
   recalc();
 }
 function toggleSel25(idx, chk) { state.usim[idx].sel25 = chk; recalc(); }
@@ -1876,7 +1908,7 @@ function recalc() {
   const ifAmtEl = document.getElementById('installFeeAmt');
   if (ifDescEl) ifDescEl.textContent = instObj.text.replace(/ \([^)]+\)$/, '');
   if (ifAmtEl) ifAmtEl.textContent = `${fmt(instObj.amt)}원`;
-  const gift = parseInt(document.getElementById('giftAmt').value, 10) || 0;
+  const gift = numOf(document.getElementById('giftAmt').value);
   const wType = (document.getElementById('welfareType') || {}).value || 'none';
 
   // V6.7: 요금제를 고르지 않은 회선(`요금제를 선택하세요 (0원)`)은 0원으로 두고,
@@ -2198,10 +2230,10 @@ function recalc() {
 }
 
 function recalcCompare() {
-  const aM = parseInt(document.getElementById('cmpAMonth').value, 10) || 0;
-  const aG = parseInt(document.getElementById('cmpAGift').value, 10) || 0;
-  const bM = parseInt(document.getElementById('cmpBMonth').value, 10) || 0;
-  const bG = parseInt(document.getElementById('cmpBGift').value, 10) || 0;
+  const aM = numOf(document.getElementById('cmpAMonth').value);
+  const aG = numOf(document.getElementById('cmpAGift').value);
+  const bM = numOf(document.getElementById('cmpBMonth').value);
+  const bG = numOf(document.getElementById('cmpBGift').value);
   const aReal = Math.max(0, aM - Math.round(aG / 36));
   const bReal = Math.max(0, bM - Math.round(bG / 36));
   const save36 = (aReal - bReal) * 36;
@@ -2380,7 +2412,7 @@ function saveQuoteItem() {
     netLabel: optTextOf('netSelect'),
     tvIdx: document.getElementById('tvSelect').value,
     tvLabel: optTextOf('tvSelect'),
-    giftAmt: document.getElementById('giftAmt').value,
+    giftAmt: String(numOf(document.getElementById('giftAmt').value)),
     ktMode: (document.getElementById('ktMode') || {}).value || 'contrib',
     ktPremDist: (document.getElementById('ktPremDist') || {}).value || 'base',
     skMode: (document.getElementById('skMode') || {}).value || 'equal',
@@ -2447,7 +2479,7 @@ function loadQuoteItem(idx) {
   };
   setSavedSel('netSelect', q.netLabel, q.netIdx, '-1');
   setSavedSel('tvSelect', q.tvLabel, q.tvIdx, '0');
-  document.getElementById('giftAmt').value = q.giftAmt;
+  document.getElementById('giftAmt').value = withComma(q.giftAmt);
   if (document.getElementById('ktMode')) document.getElementById('ktMode').value = q.ktMode;
   if (document.getElementById('ktPremDist')) document.getElementById('ktPremDist').value = q.ktPremDist || 'base';
   if (document.getElementById('skMode')) document.getElementById('skMode').value = q.skMode;
