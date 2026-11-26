@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V7.2</div>
+      <div class="ver-pill">제작자 손영곤 V7.3</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -278,15 +278,6 @@
         <div class="field-lbl">TV 상품</div>
         <select class="sel" id="tvSelect" onchange="recalc()"></select>
       </div>
-      <div id="ktOptionBox" class="hide">
-        <div class="field-lbl" style="color:#7C3AED;">KT 결합 계산 방식</div>
-        <select class="sel" id="ktMode" onchange="renderUsimLines();recalc()">
-          <option value="contrib">총액 결합할인 · 기여도 할인 (요금 비율 배분)</option>
-          <option value="assign1">총액 결합할인 · 지정 할인 (1회선 몰아주기)</option>
-          <option value="equal">총액 결합할인 · 동일 금액 할인 (1/N 균등)</option>
-          <option value="premium">프리미엄 가족결합 (77,000원↑ 2회선 이상, 2번째~ 25%)</option>
-        </select>
-      </div>
       <div id="skOptionBox">
         <div class="field-lbl" style="color:#7C3AED;">SK 요즘가족결합 배분 방식</div>
         <select class="sel" id="skMode" onchange="renderUsimLines();recalc()">
@@ -368,8 +359,27 @@
 
     <div class="card">
       <div class="sec-title" style="color:#7C3AED;">
-        2. 휴대폰 유심 결합 (공시지원금 없음 · 부가세 포함)
+        2. 휴대폰 유심 결합
         <span class="sec-badge" style="background:#F3EEFF;color:#6D28D9;" id="usimCountBadge">1회선</span>
+      </div>
+      <div id="ktOptionBox" class="hide">
+        <div class="field-lbl" style="color:#7C3AED;margin-top:0;">분배방식</div>
+        <select class="sel" id="ktMode" onchange="renderUsimLines();recalc()">
+          <option value="contrib">총액 결합할인 · 기여도 할인 (요금 비율 배분)</option>
+          <option value="assign1">총액 결합할인 · 지정 할인 (1회선 몰아주기)</option>
+          <option value="equal">총액 결합할인 · 동일 금액 할인 (1/N 균등)</option>
+          <option value="premium">프리미엄 가족결합 (77,000원↑ 2회선부터 25%)</option>
+          <option value="single">프리미엄 싱글결합 (500M↑·77,000원↑ 1회선 25%)</option>
+        </select>
+        <div id="ktPremDistBox" class="hide" style="margin-top:8px;">
+          <select class="sel" id="ktPremDist" onchange="renderUsimLines();recalc()">
+            <option value="base">총액결합 할인 → 대표 회선 몰아주기</option>
+            <option value="contrib">총액결합 할인 → 기여도 분할 (요금 비율)</option>
+            <option value="equal">총액결합 할인 → 회선별 동일 금액 (1/N)</option>
+          </select>
+          <div id="ktPremNote" class="hide" style="margin-top:8px;background:#FFFBEB;border:1.5px solid #FCD34D;border-radius:9px;padding:8px 10px;font-size:11.5px;font-weight:800;color:#B45309;line-height:1.5;word-break:keep-all;"></div>
+        </div>
+        <div id="ktSingleNote" class="hide" style="margin-top:8px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:8px 10px;font-size:11.5px;font-weight:800;color:#5B21B6;line-height:1.5;word-break:keep-all;"></div>
       </div>
       <div id="usimLines"></div>
       <button class="btn-sub" style="width:100%;margin-top:8px;padding:10px;border-color:#7C3AED;background:#F3EEFF;color:#6D28D9;" onclick="addUsimLine()">+ 유심 회선 추가 (최대 4회선)</button>
@@ -845,6 +855,18 @@ const CARRIERS = {
       const cnt = plansList.length;
       if (cnt === 0) return { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: [] };
       const mode = (document.getElementById('ktMode') || {}).value || 'contrib';
+      // V7.3(사용자 지시): KT 프리미엄 싱글결합 — 인터넷 베이직(500M) 이상 + 모바일 월정액 77,000원 이상 1회선만.
+      //  KT 공식(2026): 휴대폰 월정액 25% 할인(선택약정 25%와 중복), 인터넷은 베이직 이상 결합 할인 5,500원 1회.
+      //  그 5,500원은 `모바일 또는 TV를 결합 시 인터넷에 제공되는 할인` 한 항목이라 TV가 있으면 아래
+      //  tvBundleDisc(5,500원)가 같은 할인을 한 번 적용하므로 여기서는 0원으로 두어 2중 적용을 막는다.
+      if (mode === 'single') {
+        if (!(plansList.length === 1 && plansList[0].price >= 77000 && speed >= 500)) {
+          return { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: plansList.map(() => 0) };
+        }
+        const singleNetDisc = hasTv ? 0 : 5500;
+        const singlePerLine = [Math.round(plansList[0].price * 0.25)];
+        return { netDisc: singleNetDisc, tvDisc: 0, mobDiscTotal: singlePerLine[0], perLine: singlePerLine };
+      }
       const is100 = (speed === 100);
       const ktTable = (s) => {
         if (s < 22000) return [is100 ? 1650 : 2200, 0];
@@ -863,13 +885,31 @@ const CARRIERS = {
         const [netBase, mobBase] = ktTable(nonPremSum);
         const netDisc = Math.round(netBase * ratio);
         const baseMobDisc = Math.round(mobBase * ratio);
+        // V7.3: 총액결합(모바일) 할인은 대표 회선+77,000원 미만 회선이 받고, 배분 방식은 가입 시 선택한다.
+        //  base = 대표 회선 몰아주기(지정회선) · contrib = 기여도 분할 · equal = 회선별 동일 금액(1/N)
+        const distMode = (document.getElementById('ktPremDist') || {}).value || 'base';
+        const nonPremIdxs = plansList.map((_, i) => i).filter(i => !premTargets.has(i));
+        const share = {};
+        if (distMode === 'equal') {
+          const arr = splitEven(baseMobDisc, nonPremIdxs.length);
+          nonPremIdxs.forEach((li, k) => { share[li] = arr[k] || 0; });
+        } else if (distMode === 'contrib' && nonPremSum > 0) {
+          let acc = 0;
+          nonPremIdxs.forEach((li, k) => {
+            const v = (k === nonPremIdxs.length - 1) ? (baseMobDisc - acc)
+                                                     : Math.round(baseMobDisc * (plansList[li].price / nonPremSum));
+            share[li] = v; acc += v;
+          });
+        } else {
+          share[baseIdx] = baseMobDisc;
+        }
         const perLine = plansList.map((p, i) => {
           if (premTargets.has(i)) return Math.round(p.price * 0.25);
-          if (i === baseIdx) return baseMobDisc;
-          return 0;
+          return share[i] || 0;
         });
+        const perLineTag = plansList.map((p, i) => premTargets.has(i) ? '프리미엄결합' : '총액결합');
         const mobDiscTotal = perLine.reduce((a, b) => a + b, 0);
-        return { netDisc, tvDisc: 0, mobDiscTotal, perLine };
+        return { netDisc, tvDisc: 0, mobDiscTotal, perLine, perLineTag };
       }
 
       const sum = plansList.reduce((a, p) => a + p.price, 0);
@@ -1727,7 +1767,56 @@ function renderCompactCard(D) {
   v71Set('v71DiscBreak', bd.join(' · '));
 }
 
+// V7.3: 프리미엄 가족결합일 때만 총액결합 배분 선택 박스를 보여준다.
+function syncKtPremDist() {
+  const box = document.getElementById('ktPremDistBox');
+  if (!box) return;
+  const sel = document.getElementById('ktMode');
+  const on = !!(sel && state.carrier === 'KT' && sel.value === 'premium');
+  box.classList.toggle('hide', !on);
+  const note = document.getElementById('ktPremNote');
+  if (!note) return;
+  if (!on) { note.classList.add('hide'); note.innerHTML = ''; return; }
+  const plans = getActivePlans();
+  const premCnt = state.usim.filter(u => {
+    if (u.planIdx === -2 || u.planIdx === undefined) return false;
+    const p = u.planIdx === -1 ? { price: Number(u.customPrice) || 0 } : (plans[u.planIdx] || {});
+    return (Number(p.price) || 0) >= 77000;
+  }).length;
+  if (premCnt >= 2) { note.classList.add('hide'); note.innerHTML = ''; return; }
+  note.classList.remove('hide');
+  note.innerHTML = `⚠️ 프리미엄 가족결합은 77,000원 이상 요금제 2회선부터입니다 — 지금은 ${premCnt}회선이라 총액결합으로 계산됩니다.`;
+}
+
+// V7.3: 싱글결합 선택 시 조건 충족 여부를 박스 밑에 안내한다(적용/미적용 및 이유).
+function syncKtSingleNote() {
+  const box = document.getElementById('ktSingleNote');
+  if (!box) return;
+  const sel = document.getElementById('ktMode');
+  if (!sel || state.carrier !== 'KT' || sel.value !== 'single') { box.classList.add('hide'); box.innerHTML = ''; return; }
+  const netSel = document.getElementById('netSelect');
+  const netOpt = (netSel && netSel.value !== '-1') ? CARRIERS.KT.nets[Number(netSel.value)] : null;
+  const speed = netOpt ? Number(netOpt.speed) : 0;
+  const plans = getActivePlans();
+  const priceOf = u => (u.planIdx === -1 ? (Number(u.customPrice) || 0) : ((plans[u.planIdx] || {}).price || 0));
+  const cnt = state.usim.length;
+  const firstP = cnt ? priceOf(state.usim[0]) : 0;
+  const reasons = [];
+  if (speed < 500) reasons.push(speed > 0 ? `인터넷 ${speed}M → 베이직(500M) 이상 필요` : '인터넷 미선택 → 베이직(500M) 이상 필요');
+  if (cnt !== 1) reasons.push(`휴대폰 ${cnt}회선 → 1회선만 결합 가능`);
+  else if (firstP < 77000) reasons.push(firstP > 0 ? `휴대폰 ${fmt(firstP)}원 → 77,000원 이상 필요` : '휴대폰 요금제 미선택 → 77,000원 이상 필요');
+  box.classList.remove('hide');
+  if (!reasons.length) {
+    box.style.background = '#F5F3FF'; box.style.borderColor = '#DDD6FE'; box.style.color = '#5B21B6';
+    box.innerHTML = `✅ 프리미엄 싱글결합 적용 — 휴대폰 ${fmt(firstP)}원 × 25% = -${fmt(Math.round(firstP * 0.25))}원 (선택약정 25%와 중복 가능)<br>· 인터넷 결합 할인 5,500원은 TV를 함께 써도 중복되지 않습니다.`;
+  } else {
+    box.style.background = '#FFFBEB'; box.style.borderColor = '#FCD34D'; box.style.color = '#B45309';
+    box.innerHTML = `⚠️ 프리미엄 싱글결합 조건 미충족 — ${reasons.join(' · ')}<br>· 지금은 싱글결합 할인(휴대폰 25%·인터넷 결합 5,500원)이 적용되지 않습니다.`;
+  }
+}
+
 function recalc() {
+  try { syncKtSingleNote(); syncKtPremDist(); } catch (e) {}
   const c = CARRIERS[state.carrier];
   const plans = getActivePlans();
   const years = 3;   // V6.6: 전 통신사 3년 약정 고정(사용자 지시) — 약정 선택 없음
@@ -1805,6 +1894,7 @@ function recalc() {
     finally { state.assignIdx = savedAssign; }
     return { netDisc: r.netDisc, tvDisc: r.tvDisc, mobDiscTotal: r.mobDiscTotal,
              perLine: plansList.map((p, i) => (validPos[i] === undefined ? 0 : (r.perLine[validPos[i]] || 0))),
+             perLineTag: r.perLineTag ? plansList.map((p, i) => (validPos[i] === undefined ? '' : (r.perLineTag[validPos[i]] || ''))) : null,
              assignTarget: plansList.findIndex(p => p === validPlans[tgt]), note: r.note || '' };
   })();
   // 지정할인 회선이 미선택 회선이면 할인이 사라지지 않도록 실제 할인 받는 회선으로 표시를 맞춘다
@@ -1906,7 +1996,11 @@ function recalc() {
     const parts = [];
     if (s25 > 0) parts.push(`선택약정 -${fmt(s25)}`);
     // V6.5d: ② 유심 줄의 회선 할인 라벨은 유심 결합임을 분명히 `유심결합`으로 표기(사용자 지시).
-    if (mDisc > 0) parts.push(`${isAssignMode() ? '지정결합' : '유심결합'} -${fmt(mDisc)}`);
+    if (mDisc > 0) {
+      const discName = (bRes.perLineTag && bRes.perLineTag[idx]) ? bRes.perLineTag[idx]
+        : ((state.carrier === 'KT' && (document.getElementById('ktMode') || {}).value === 'single') ? '싱글결합' : (isAssignMode() ? '지정결합' : '유심결합'));
+      parts.push(`${discName} -${fmt(mDisc)}`);
+    }
     if (yDisc > 0) parts.push(`청소년 -${fmt(yDisc)}`);
     if (wMob > 0) parts.push(`복지 -${fmt(wMob)}`);
     if (tagEl) tagEl.textContent = parts.length ? `(${parts.join(' · ')})` : (p.none ? '(요금제 미선택 · 0원)' : '(적용된 할인 없음)');
@@ -1942,7 +2036,7 @@ function recalc() {
     if (welfareWiredDisc > 0) wPartObjs.push({ k: 'welfare', label: '복지', amt: welfareWiredDisc });
   } else {
     if (tvBundlePart > 0) wPartObjs.push({ k: 'tv', label: '인터넷·TV 결합', amt: tvBundlePart });
-    if (usimBundlePart > 0) wPartObjs.push({ k: 'usim', label: '인터넷·TV·유심결합', amt: usimBundlePart });
+    if (usimBundlePart > 0) wPartObjs.push({ k: 'usim', label: (state.carrier === 'KT' && (document.getElementById('ktMode') || {}).value === 'single') ? '인터넷 결합(싱글)' : '인터넷·TV·유심결합', amt: usimBundlePart });
     if ((bRes.tvDisc || 0) > 0) wPartObjs.push({ k: 'tvadd', label: (state.carrier === 'SKB' || state.carrier === 'SKT') ? 'B tv' : 'TV', amt: bRes.tvDisc });
   }
   const allPartObjs = wPartObjs;
@@ -2019,7 +2113,7 @@ function recalc() {
 
   const uBox = document.getElementById('sumUsimLines');
   if (uBox) {
-    const modeLbl = isAssignMode() ? '지정할인' : '각각할인';
+    const modeLbl = (state.carrier === 'KT' && (document.getElementById('ktMode') || {}).value === 'single') ? '싱글결합' : ((state.carrier === 'KT' && (document.getElementById('ktMode') || {}).value === 'premium') ? '프리미엄결합' : (isAssignMode() ? '지정할인' : '각각할인'));
     uBox.innerHTML = `<div style="font-size:15.5px;color:#0F172A;font-weight:900;">유심 ${state.usim.length}회선 (${modeLbl})</div>` +
       (window._sumUsimRows || []).map(r => `
         <div>
@@ -2074,7 +2168,7 @@ function recalc() {
       netTvFinal, netTvDisc, wifi, settopAdd, wiredFinal, usimSubtotal,
       totalMonthly, totalDisc, aff: state.affDisc,
       rows: window._sumUsimRows || [],
-      mode: isAssignMode() ? '지정할인' : '각각할인',
+      mode: (state.carrier === 'KT' && (document.getElementById('ktMode') || {}).value === 'single') ? '싱글결합' : ((state.carrier === 'KT' && (document.getElementById('ktMode') || {}).value === 'premium') ? '프리미엄결합' : (isAssignMode() ? '지정할인' : '각각할인')),
       welfareWired: useWelfareWired ? welfareWiredDisc : 0,
       welfareMob: welfareMobTotal || 0,
       sel25Sum: sel25Sum || 0,
@@ -2281,6 +2375,7 @@ function saveQuoteItem() {
     tvLabel: optTextOf('tvSelect'),
     giftAmt: document.getElementById('giftAmt').value,
     ktMode: (document.getElementById('ktMode') || {}).value || 'contrib',
+    ktPremDist: (document.getElementById('ktPremDist') || {}).value || 'base',
     skMode: (document.getElementById('skMode') || {}).value || 'equal',
     lgMode: (document.getElementById('lgMode') || {}).value || 'cham',
     helloMode: (document.getElementById('helloMode') || {}).value || 'uplus',
@@ -2347,6 +2442,7 @@ function loadQuoteItem(idx) {
   setSavedSel('tvSelect', q.tvLabel, q.tvIdx, '0');
   document.getElementById('giftAmt').value = q.giftAmt;
   if (document.getElementById('ktMode')) document.getElementById('ktMode').value = q.ktMode;
+  if (document.getElementById('ktPremDist')) document.getElementById('ktPremDist').value = q.ktPremDist || 'base';
   if (document.getElementById('skMode')) document.getElementById('skMode').value = q.skMode;
   if (document.getElementById('lgMode')) document.getElementById('lgMode').value = q.lgMode;
   if (document.getElementById('helloMode')) {
