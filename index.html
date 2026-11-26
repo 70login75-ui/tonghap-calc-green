@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V6.6</div>
+      <div class="ver-pill">제작자 손영곤 V6.7</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -176,7 +176,7 @@
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #CBD5E1;padding-top:9px;margin-top:9px;font-weight:900;font-size:16px;">
           <span style="color:#0F172A;white-space:nowrap;">총 할인 금액</span>
-          <span style="color:#DC2626;font-size:17.5px;white-space:nowrap;" id="sumDisc">-0원</span>
+          <span style="color:#DC2626;font-size:17.5px;white-space:nowrap;" id="sumDisc">0원</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0 6px;font-size:11.5px;color:#475569;font-weight:800;margin-top:3px;line-height:1.4;" id="sumDiscBreak"></div>
         <div style="font-size:12px;color:#475569;font-weight:700;margin-top:4px;text-align:right;line-height:1.4;word-break:keep-all;" id="sumTotalVatSub">공급가 0원 + 부가세 0원 (전 항목 부가세 포함)</div>
@@ -202,7 +202,7 @@
         </div>
         <div>
           <div class="field-lbl">현금지원 (사은품 원)</div>
-          <input class="inp" type="number" id="giftAmt" value="450000" step="10000" oninput="recalc()">
+          <input class="inp" type="number" id="giftAmt" value="0" step="10000" oninput="recalc()">
         </div>
       </div>
       <div>
@@ -1047,11 +1047,14 @@ const CARRIERS = {
   }
 };
 
+// V6.7(사용자 지시): 앱에 처음 들어가거나 견적 초기화를 누르면 모든 계산이 0원.
+//  유심 1회선 카드는 바로 보이되 요금제는 `미선택(0원)`(PLAN_NONE)으로 둔다.
+const PLAN_NONE = -2;
 let state = {
   carrier: 'SKT',
   affDisc: 0,
   assignIdx: 0,
-  usim: [{ planIdx: 3, sel25: true }],
+  usim: [{ planIdx: PLAN_NONE, sel25: true }],
   lastResult: {}
 };
 
@@ -1084,7 +1087,7 @@ function renderCarriers() {
 function clearAllToZero() {
   state.affDisc = 0;
   state.assignIdx = 0;
-  state.usim = [];
+  state.usim = [{ planIdx: PLAN_NONE, sel25: true }];   // V6.7: 유심 1회선은 남기고 요금제만 미선택(0원)
   document.querySelectorAll('#affChips .chip').forEach((b, i) => b.classList.toggle('on', i === 0));
   if (document.getElementById('termYears')) document.getElementById('termYears').value = '3';
   if (document.getElementById('giftAmt')) document.getElementById('giftAmt').value = '0';
@@ -1104,11 +1107,13 @@ function clearAllToZero() {
 
 function resetQuote() {
   selectCarrier(state.carrier || 'SKT', true);
-  showToast('현재 통신사의 모든 항목이 0원으로 초기화되었습니다.');
+  showToast('모든 항목이 0원으로 초기화되었습니다. 유심 1회선은 요금제를 선택하세요.');
 }
 
 function selectCarrier(k, resetToZero) {
-  if (resetToZero) clearAllToZero();
+  // V6.7(사용자 지시): 통신사 탭을 바꿔도 인터넷·TV·셋톱·와이파이·유심 요금제는
+  //  미선택(0원) 상태에서 시작해, 전 통신사 어디를 눌러도 0원에서 원하는 항목만 골라 계산한다.
+  clearAllToZero();
   state.carrier = k;
   const kb = document.getElementById('ktOptionBox');
   const sb = document.getElementById('skOptionBox');
@@ -1152,8 +1157,11 @@ function populateSelects() {
   const c = CARRIERS[state.carrier];
   const netSel = document.getElementById('netSelect');
   const tvSel = document.getElementById('tvSelect');
-  netSel.innerHTML = '<option value="-1">선택 안함 (0원)</option>' + c.nets.map((n, i) => `<option value="${i}" ${i===1?'selected':''}>${n.label}</option>`).join('');
-  tvSel.innerHTML = c.tvs.map((t, i) => `<option value="${i}" ${i===1?'selected':''}>${t.label}</option>`).join('');
+  // V6.7: 처음 열면 인터넷·TV 모두 `미선택(0원)`에서 시작한다.
+  netSel.innerHTML = '<option value="-1">선택 안함 (0원)</option>' + c.nets.map((n, i) => `<option value="${i}">${n.label}</option>`).join('');
+  netSel.value = '-1';
+  tvSel.innerHTML = c.tvs.map((t, i) => `<option value="${i}" ${i===0?'selected':''}>${t.label}</option>`).join('');
+  tvSel.value = '0';
   const settopSel = document.getElementById('settopSelect');
   if (settopSel && c.settops) settopSel.innerHTML = c.settops.map((s, i) => `<option value="${i}" ${i===0?'selected':''}>${s.label}</option>`).join('');
   const exSel = document.getElementById('extraTvSelect');
@@ -1308,9 +1316,11 @@ function renderUsimLines() {
   const assignOn = isAssignMode();
   const aIdx = Math.min(state.assignIdx || 0, Math.max(0, state.usim.length - 1));
   box.innerHTML = state.usim.map((u, idx) => {
-    const pIdx = Math.min(u.planIdx, plans.length - 1);
+    // V6.7: 첫 옵션이 `요금제를 선택하세요 (0원)` — 회선 카드는 보이되 금액은 0원
+    let pIdx = Number.isFinite(u.planIdx) ? u.planIdx : PLAN_NONE;
+    if (pIdx >= 0) pIdx = Math.min(pIdx, plans.length - 1);
     u.planIdx = pIdx;
-    const planOpts = plans.map((p, i) => `<option value="${i}" ${i===pIdx?'selected':''}>${p.label}</option>`).join('') + `<option value="-1" ${u.planIdx === -1 ? 'selected' : ''}>직접 요금 입력 (특수·시니어 등)</option>`;
+    const planOpts = `<option value="-2" ${pIdx === PLAN_NONE ? 'selected' : ''}>요금제를 선택하세요 (0원)</option>` + plans.map((p, i) => `<option value="${i}" ${i===pIdx?'selected':''}>${p.label}</option>`).join('') + `<option value="-1" ${pIdx === -1 ? 'selected' : ''}>직접 요금 입력 (특수·시니어 등)</option>`;
     const assignBtn = assignOn ? `<button type="button" class="btn-mini" style="${idx===aIdx?'background:#EDE9FE;color:#6D28D9;border-color:#8B5CF6;':''}" onclick="setAssignLine(${idx})">${idx===aIdx?'★ 지정할인 회선':'지정할인 선택'}</button>` : '';
     return `
       <div class="line-card">
@@ -1351,7 +1361,7 @@ function renderUsimLines() {
 
 function addUsimLine() {
   if (state.usim.length >= 4) return showToast('유심 결합은 최대 4회선까지 가능합니다.');
-  state.usim.push({ planIdx: 0, sel25: true, customPrice: 33000 });
+  state.usim.push({ planIdx: PLAN_NONE, sel25: true, customPrice: 33000 });   // V6.7: 추가 회선도 요금제 미선택(0원)으로 시작
   renderUsimLines();
   recalc();
 }
@@ -1505,7 +1515,7 @@ function recalc() {
   const tvObj = c.tvs[parseInt(document.getElementById('tvSelect').value, 10)] || c.tvs[0];
   renderWifiSelect();
   const wifiKey = getWifiKey();
-  const wifi = wifiFeeOf(state.carrier, netObj.speed, wifiKey);
+  const wifi = netObj.speed === 0 ? 0 : wifiFeeOf(state.carrier, netObj.speed, wifiKey);   // V6.7: 인터넷 미선택이면 와이파이도 0원
   updateKtWifiNote(netObj, wifiKey, wifi);
   const extraTvUnit = parseInt(document.getElementById('extraTvSelect').value, 10) || 0;
   const exCntEl = document.getElementById('extraTvCount');
@@ -1547,8 +1557,35 @@ function recalc() {
   const gift = parseInt(document.getElementById('giftAmt').value, 10) || 0;
   const wType = (document.getElementById('welfareType') || {}).value || 'none';
 
-  const plansList = state.usim.map(u => { const base = u.planIdx === -1 ? { label: `직접입력 (${fmt(u.customPrice || 0)}원)`, price: (u.customPrice || 0) } : (plans[u.planIdx] || plans[0]); return Object.assign({}, base, { sel25: !!u.sel25 }); });
-  const bRes = netObj.speed === 0 ? { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: plansList.map(() => 0), note: '' } : c.calcBundle(netObj.speed, tvObj.price > 0, plansList, ratio, tvObj.price);
+  // V6.7: 요금제를 고르지 않은 회선(`요금제를 선택하세요 (0원)`)은 0원으로 두고,
+  //  결합 계산에서는 빼서 유효 회선 수만큼만 할인되게 한다.
+  const plansList = state.usim.map(u => {
+    if (u.planIdx === PLAN_NONE) return { label: '요금제를 선택하세요 (0원)', price: 0, none: true, sel25: !!u.sel25 };
+    const base = u.planIdx === -1 ? { label: `직접입력 (${fmt(u.customPrice || 0)}원)`, price: (u.customPrice || 0) } : (plans[u.planIdx] || plans[0]);
+    return Object.assign({}, base, { sel25: !!u.sel25 });
+  });
+  const bRes = (() => {
+    const zero = { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: plansList.map(() => 0), note: '' };
+    if (netObj.speed === 0) return zero;
+    const validPlans = [], validPos = [];
+    plansList.forEach((p, i) => { if (!p.none) { validPos[i] = validPlans.push(p) - 1; } });
+    if (!validPlans.length) return zero;
+    const savedAssign = state.assignIdx;
+    let tgt = validPos[Math.min(savedAssign || 0, plansList.length - 1)];
+    if (tgt === undefined) tgt = 0;
+    state.assignIdx = tgt;
+    let r;
+    try { r = c.calcBundle(netObj.speed, tvObj.price > 0, validPlans, ratio, tvObj.price); }
+    finally { state.assignIdx = savedAssign; }
+    return { netDisc: r.netDisc, tvDisc: r.tvDisc, mobDiscTotal: r.mobDiscTotal,
+             perLine: plansList.map((p, i) => (validPos[i] === undefined ? 0 : (r.perLine[validPos[i]] || 0))),
+             assignTarget: plansList.findIndex(p => p === validPlans[tgt]), note: r.note || '' };
+  })();
+  // 지정할인 회선이 미선택 회선이면 할인이 사라지지 않도록 실제 할인 받는 회선으로 표시를 맞춘다
+  if (isAssignMode() && bRes.assignTarget !== undefined && bRes.assignTarget !== -1 && bRes.assignTarget !== state.assignIdx) {
+    state.assignIdx = bRes.assignTarget;
+    renderUsimDistBox();
+  }
 
   // 인터넷+TV 결합 할인 (유선결합) — 인터넷과 TV를 함께 쓰면 인터넷 요금에서 추가 할인
   const tvOn = netObj.speed > 0 && tvObj.price > 0;
@@ -1632,19 +1669,19 @@ function recalc() {
     const tagEl = document.getElementById(`lineDiscTag-${idx}`);
     const payEl = document.getElementById(`linePay-${idx}`);
     const s25El = document.getElementById(`lineSel25Amt-${idx}`);
-    if (s25El) s25El.textContent = u.sel25 ? `(-${fmt(s25)}원)` : '(미적용)';
+    if (s25El) s25El.textContent = p.none ? '(요금제 미선택)' : (u.sel25 ? `(-${fmt(s25)}원)` : '(미적용)');
     if (origEl) origEl.textContent = `${fmt(p.price)}원`;
-    if (discTotEl) discTotEl.textContent = `-${fmt(lineDiscSum)}원`;
+    if (discTotEl) discTotEl.textContent = lineDiscSum > 0 ? `-${fmt(lineDiscSum)}원` : '0원';
     const parts = [];
     if (s25 > 0) parts.push(`선택약정 -${fmt(s25)}`);
     // V6.5d: ② 유심 줄의 회선 할인 라벨은 유심 결합임을 분명히 `유심결합`으로 표기(사용자 지시).
     if (mDisc > 0) parts.push(`${isAssignMode() ? '지정결합' : '유심결합'} -${fmt(mDisc)}`);
     if (yDisc > 0) parts.push(`청소년 -${fmt(yDisc)}`);
     if (wMob > 0) parts.push(`복지 -${fmt(wMob)}`);
-    if (tagEl) tagEl.textContent = parts.length ? `(${parts.join(' · ')})` : '(적용된 할인 없음)';
+    if (tagEl) tagEl.textContent = parts.length ? `(${parts.join(' · ')})` : (p.none ? '(요금제 미선택 · 0원)' : '(적용된 할인 없음)');
     if (payEl) payEl.textContent = `${fmt(pay)}원`;
     if (!window._sumUsimRows) window._sumUsimRows = [];
-    window._sumUsimRows.push({ idx, orig: p.price, disc: lineDiscSum, pay, detail: parts.join(' · ') });
+    window._sumUsimRows.push({ idx, orig: p.price, disc: lineDiscSum, pay, detail: p.none ? '요금제 미선택 (0원)' : parts.join(' · ') });
   });
 
   const wInfo = document.getElementById('welfareInfo');
@@ -1757,7 +1794,7 @@ function recalc() {
               <span style="font-size:13px;color:#475569;font-weight:800;">(${fmt(r.orig)}원)</span>
             </div>
             <div style="text-align:right;white-space:nowrap;flex-shrink:0;">
-              <span style="color:#DC2626;font-weight:900;font-size:15px;margin-right:5px;">-${fmt(r.disc)}원</span>
+              <span style="color:#DC2626;font-weight:900;font-size:15px;margin-right:5px;">${r.disc > 0 ? '-' + fmt(r.disc) + '원' : ''}</span>
               <span style="font-weight:900;font-size:17px;color:#009A3E;">${fmt(r.pay)}원</span>
             </div>
           </div>
@@ -1777,7 +1814,7 @@ function recalc() {
   if (finalEl) finalEl.textContent = `${fmt(totalMonthly)}원`;
   const splitEl = document.getElementById('sumMonthlySplit');
   if (splitEl) splitEl.textContent = `① 유선 ${fmt(wiredFinal)} + ② 유심 ${fmt(usimSubtotal)}원` + (state.affDisc > 0 ? ` − 카드 ${fmt(state.affDisc)}원` : '');
-  document.getElementById('sumDisc').textContent = `-${fmt(totalDisc)}원`;
+  document.getElementById('sumDisc').textContent = totalDisc > 0 ? `-${fmt(totalDisc)}원` : '0원';
   const discBreakEl = document.getElementById('sumDiscBreak');
   if (discBreakEl) {
     const bdParts = [];
@@ -1794,7 +1831,7 @@ function recalc() {
     carrier: c.name, years, netLabel: netObj.label, tvLabel: (tvObj.price > 0 ? `${tvObj.label} + ${settopObj.label}` : tvObj.label) + (extraTv > 0 ? ` (+추가TV ${extraTvCnt}대 ${fmt(extraTv)}원)` : ''),
     wifiLabel: wifiLabelOf(state.carrier, wifiKey), wifiFee: wifi,
     wiredFinal, netTvOrig, netNcOrig, contractDisc, netTvDisc, netTvFinal, wifiAmt: wifi, settopAmt: settopAdd, wiredDiscApplied,
-    usimCount: state.usim.length, usimFinalSum: usimSubtotal, netDiscFinal, usimBundlePart, tvBundlePart, affDisc: state.affDisc,
+    usimCount: plansList.filter(p => !p.none).length, usimFinalSum: usimSubtotal, netDiscFinal, usimBundlePart, tvBundlePart, affDisc: state.affDisc,
     welfareMobTotal, welfareWiredDisc: useWelfareWired ? welfareWiredDisc : 0, installFee,
     totalMonthly, gift, realMonthly, totalDisc
   };
@@ -2065,7 +2102,7 @@ function sendQuoteToCrm() {
   const tvIdx = document.getElementById('tvSelect').value;
   const hasNet = netIdx !== '-1' && netIdx !== '';
   const hasTv = tvIdx !== '0' && tvIdx !== '';
-  const hasUsim = state.usim.length > 0;
+  const hasUsim = state.usim.some(u => u.planIdx !== PLAN_NONE);   // V6.7: 미선택 회선은 제외
   let crmProduct = '인터넷+TV';
   if (!hasNet && hasUsim) crmProduct = '유심/무선';
   else if (hasNet && hasUsim) crmProduct = '인터넷+TV+휴대폰결합';
@@ -2075,13 +2112,13 @@ function sendQuoteToCrm() {
   const parts = [];
   if (hasNet && lr.netLabel && !lr.netLabel.includes('선택 안함')) parts.push(cleanLbl(lr.netLabel));
   if (hasTv && lr.tvLabel && !lr.tvLabel.includes('미가입')) parts.push(cleanLbl(lr.tvLabel));
-  const planName = parts.join(' + ') || (hasUsim ? `유심 ${state.usim.length}회선` : '');
+  const planName = parts.join(' + ') || (hasUsim ? `유심 ${state.usim.filter(u => u.planIdx !== PLAN_NONE).length}회선` : '');
 
   const wifiKeyVal = getWifiKey();
   const wifiFeeVal = wifiFeeOf(state.carrier, getNetSpeed(), wifiKeyVal);
   const ap = wifiFeeVal > 0 ? '신청' : '미신청';
   const activePlans = getActivePlans();
-  const sims = state.usim.slice(0, 4).map(u => {
+  const sims = state.usim.slice(0, 4).filter(u => u.planIdx !== PLAN_NONE).map(u => {
     const p = activePlans[u.planIdx] || activePlans[0] || { name: '' };
     return {
       carrier: crmCarrier,
@@ -2123,12 +2160,26 @@ function deleteQuoteItem(idx) {
   showToast('삭제되었습니다.');
 }
 
+// V6.7(사용자 추가 지시): 앱을 닫았다 다시 들어오거나 새로고침해도 항상 초기 0원 ·
+//  유심 1회선 미선택 상태로 시작한다. 저장해 둔 상담내역(QUOTE_STORE_KEY)은 그대로 두고
+//  `📂 상담내역 불러오기`로 불러올 때만 그 견적이 복원된다.
+function startFreshQuote() {
+  const carrier = CARRIERS[state.carrier] ? state.carrier : 'SKT';
+  clearAllToZero();
+  selectCarrier(carrier);
+  if (document.getElementById('giftAmt')) document.getElementById('giftAmt').value = '0';
+  renderUsimLines();
+  recalc();
+}
 renderCarriers();
 populateSelects();
 renderUsimLines();
 recalc();
+startFreshQuote();
 recalcCompare();
 updateQuoteCount();
+// 뒤로가기로 되살아난 화면(bfcache)도 0원 상태로 되돌린다
+window.addEventListener('pageshow', e => { if (e.persisted) startFreshQuote(); });
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
