@@ -93,7 +93,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V5.9</div>
+      <div class="ver-pill">제작자 손영곤 V6.0</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -584,9 +584,9 @@ const CARRIERS = {
       { label: 'B tv 스탠다드 50%+AI5케어 (11,550원)', price: 11550 }
     ],
     calcBundle: (speed, hasTv, plansList, ratio) => {
-      const netBase = { 100: 4400, 500: 11000, 1000: 13200 }[speed] || 0;
-      const tvBase = hasTv ? 1100 : 0;
       const cnt = plansList.length;
+      const netBase = cnt > 0 ? ({ 100: 4400, 500: 11000, 1000: 13200 }[speed] || 0) : 0;
+      const tvBase = (cnt > 0 && hasTv) ? 1100 : 0;
       let mobBase = 0;
       if (cnt === 1) mobBase = 3500;
       else if (cnt === 2) mobBase = 7000;
@@ -822,11 +822,13 @@ const CARRIERS = {
       }
       const netBase = { 100: 5500, 500: 9900, 1000: 13200 }[speed] || 0;
       const netDisc = Math.round(netBase * ratio);
+      const effPrice = p => Math.round((p.price || 0) * (p.sel25 ? 0.75 : 1));
       const perLine = plansList.map(p => {
         if (cnt <= 1) return 0;
-        if (cnt === 2) return p.price >= 88000 ? 4400 : (p.price >= 69000 ? 3300 : 2200);
-        if (cnt === 3) return p.price >= 88000 ? 6600 : (p.price >= 69000 ? 5500 : 3300);
-        return p.price >= 88000 ? 8800 : (p.price >= 69000 ? 6600 : 4400);
+        const ep = effPrice(p);
+        if (cnt === 2) return ep >= 88000 ? 4400 : (ep >= 69000 ? 3300 : 2200);
+        if (cnt === 3) return ep >= 88000 ? 6600 : (ep >= 69000 ? 5500 : 3300);
+        return ep >= 88000 ? 8800 : (ep >= 69000 ? 6600 : 4400);
       });
       const mobDiscTotal = perLine.reduce((a, b) => a + b, 0);
       return { netDisc, tvDisc: 0, mobDiscTotal, perLine };
@@ -914,15 +916,18 @@ const CARRIERS = {
       if (cnt === 0) return { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: [] };
       const hMode = (document.getElementById('helloMode') || {}).value || 'uplus';
       const netBase = { 100: 5082, 500: 5852, 1000: 6160 }[speed] || 0;
-      const netDisc = Math.round(netBase * ratio);
+      let netDisc = Math.round(netBase * ratio);
 
       if (hMode === 'skt') {
+        netDisc = cnt >= 2 ? Math.round(netBase * ratio) : 0;
         let mobBase = 0;
         if (cnt === 2) {
           const has649 = plansList.some(p => p.price >= 64900);
           mobBase = has649 ? 14300 : 5500;
-        } else if (cnt >= 3) {
+        } else if (cnt === 3) {
           mobBase = 16500;
+        } else if (cnt >= 4) {
+          mobBase = (speed >= 500) ? 22000 : 16500;
         }
         const mobDiscTotal = Math.round(mobBase * ratio);
         const skMode = (document.getElementById('skMode') || {}).value || 'equal';
@@ -932,11 +937,13 @@ const CARRIERS = {
         return { netDisc, tvDisc: 0, mobDiscTotal, perLine };
       }
 
+      const effPrice = p => Math.round((p.price || 0) * (p.sel25 ? 0.75 : 1));
       const perLine = plansList.map(p => {
         if (cnt <= 1) return 0;
-        if (cnt === 2) return p.price >= 88000 ? 4400 : (p.price >= 69000 ? 3300 : 2200);
-        if (cnt === 3) return p.price >= 88000 ? 6600 : (p.price >= 69000 ? 5500 : 3300);
-        return p.price >= 88000 ? 8800 : (p.price >= 69000 ? 6600 : 4400);
+        const ep = effPrice(p);
+        if (cnt === 2) return ep >= 88000 ? 4400 : (ep >= 69000 ? 3300 : 2200);
+        if (cnt === 3) return ep >= 88000 ? 6600 : (ep >= 69000 ? 5500 : 3300);
+        return ep >= 88000 ? 8800 : (ep >= 69000 ? 6600 : 4400);
       });
       const mobDiscTotal = perLine.reduce((a, b) => a + b, 0);
       return { netDisc, tvDisc: 0, mobDiscTotal, perLine };
@@ -1344,7 +1351,7 @@ function recalc() {
   const gift = parseInt(document.getElementById('giftAmt').value, 10) || 0;
   const wType = (document.getElementById('welfareType') || {}).value || 'none';
 
-  const plansList = state.usim.map(u => u.planIdx === -1 ? { label: `직접입력 (${fmt(u.customPrice || 0)}원)`, price: (u.customPrice || 0) } : (plans[u.planIdx] || plans[0]));
+  const plansList = state.usim.map(u => { const base = u.planIdx === -1 ? { label: `직접입력 (${fmt(u.customPrice || 0)}원)`, price: (u.customPrice || 0) } : (plans[u.planIdx] || plans[0]); return Object.assign({}, base, { sel25: !!u.sel25 }); });
   const bRes = netObj.speed === 0 ? { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: plansList.map(() => 0), note: '' } : c.calcBundle(netObj.speed, tvObj.price > 0, plansList, ratio, tvObj.price);
 
   // 유선 복지 감면 (기초연금 제외, 유선 결합과 중복 불가 -> 더 큰 쪽 적용)
@@ -1427,10 +1434,12 @@ function recalc() {
   const wiredSupply = Math.round(wiredFinal / 1.1);
   const wiredVat = wiredFinal - wiredSupply;
   const wParts = [];
-  const wCombAmt = useWelfareWired ? 0 : bundleWiredDisc;
-  const wWelfAmt = useWelfareWired ? welfareWiredDisc : 0;
-  if (wCombAmt > 0) wParts.push(`결합 -${fmt(wCombAmt)}`);
-  if (wWelfAmt > 0) wParts.push(`복지 -${fmt(wWelfAmt)}`);
+  if (useWelfareWired) {
+    if (welfareWiredDisc > 0) wParts.push(`복지 -${fmt(welfareWiredDisc)}`);
+  } else {
+    if ((bRes.netDisc || 0) > 0) wParts.push(`인터넷 -${fmt(bRes.netDisc)}`);
+    if ((bRes.tvDisc || 0) > 0) wParts.push(`TV -${fmt(bRes.tvDisc)}`);
+  }
   const wDetailTxt = wParts.length ? wParts.join(' · ') : '적용된 할인 없음';
 
   const wTitleEl = document.getElementById('sumWiredTitle');
