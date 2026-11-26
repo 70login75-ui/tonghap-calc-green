@@ -42,6 +42,12 @@
   .chip.purp.on { background: #F3EEFF; border-color: #7C3AED; color: #6D28D9; }
 
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  #wifiSetPair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; align-items: end; }
+  #wifiSetPair > * { min-width: 0; }
+  #wifiSetPair .field-lbl { margin-top: 10px; word-break: keep-all; }
+  #wifiSetPair .sel { padding: 10px 8px; font-size: 13px; text-overflow: ellipsis; }
+  #helloOptionBox:not(.hide) + #skOptionBox:not(.hide) .field-lbl { margin-top: 10px; }
+  @media (max-width: 380px) { #wifiSetPair .sel { padding: 9px 6px; font-size: 12px; } }
   .field-lbl { font-size: 13.5px; font-weight: 800; color: #111827; margin-bottom: 5px; margin-top: 10px; }
   .sel, .inp { width: 100%; padding: 10px 11px; border: 1.5px solid #D1D5DB; border-radius: 10px; font-size: 14px; font-weight: 800; background: #fff; color: #1D4ED8; }
   .sel::placeholder, .inp::placeholder, #quoteTitleInp::placeholder { color: #94A3B8; opacity: 1; }
@@ -115,7 +121,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V7.3</div>
+      <div class="ver-pill">제작자 손영곤 V7.4</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -278,42 +284,23 @@
         <div class="field-lbl">TV 상품</div>
         <select class="sel" id="tvSelect" onchange="recalc()"></select>
       </div>
-      <div id="skOptionBox">
-        <div class="field-lbl" style="color:#7C3AED;">SK 요즘가족결합 배분 방식</div>
-        <select class="sel" id="skMode" onchange="renderUsimLines();recalc()">
-          <option value="equal">균등 분배 (결합 회선 1/N 나누기)</option>
-          <option value="assign1">지정 할인 (1회선 몰아주기)</option>
+      <div id="wifiSetPair">
+        <div class="field-lbl" id="wifiFieldLbl" style="grid-area:1/1;">와이파이 임대료</div>
+        <div class="field-lbl" id="settopFieldLbl" style="grid-area:1/2;">셋톱박스 선택</div>
+        <select class="sel" id="wifiSelect" style="grid-area:2/1;" onchange="recalc()">
+          <option value="none">미신청 (0원)</option>
+          <option value="home">추가 임대 (1,100원)</option>
         </select>
-      </div>
-      <div id="lgOptionBox" class="hide">
-        <div class="field-lbl" style="color:#7C3AED;">LG U+ 결합 상품 선택</div>
-        <select class="sel" id="lgMode" onchange="recalc()">
-          <option value="cham">참 쉬운 가족 결합 (요금제 무관 · 전 속도)</option>
-          <option value="together">U+ 투게더 결합 (85,000원↑ 무제한 · 500M↑)</option>
-        </select>
-      </div>
-      <div id="helloOptionBox" class="hide">
-        <div class="field-lbl" style="color:#7C3AED;">LG헬로비전 교차 결합 통신사</div>
-        <select class="sel" id="helloMode" onchange="onHelloModeChange()">
-          <option value="uplus">LG U+ 휴대폰 결합 (참 쉬운 케이블 가족 결합)</option>
-          <option value="skt">SKT 휴대폰 결합 (온가족케이블플랜 · 2회선↑)</option>
-        </select>
-      </div>
-      <div id="skyOptionBox" class="hide">
-        <div class="field-lbl" style="color:#7C3AED;">스카이라이프 유심 결합 (자사 유심 시 · 자동 계산)</div>
-        <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800;color:#5B21B6;line-height:1.45;">
-          유심 결합은 인터넷 할인 없이 <b>TV 결합 요금의 10%(1회선) · 20%(2회선 이상, 최대 2회선)</b>만 할인됩니다.<br>
-          · 베이직 6,050원 → 1회선 <b>-605원</b> · 2회선 <b>-1,210원</b><br>
-          · 플러스 7,150원 → 1회선 <b>-715원</b> · 2회선 <b>-1,430원</b>
+        <select class="sel" id="settopSelect" style="grid-area:2/2;" onchange="recalc()"></select>
+        <div id="ktWifiNote" class="hide" style="grid-area:3/1;margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:7px 9px;font-size:11.5px;font-weight:800;color:#5B21B6;line-height:1.45;word-break:keep-all;"></div>
+        <div id="settopFeeInfo" class="hide" style="grid-area:3/2;margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:10px;padding:8px 9px;line-height:1.45;">
+          <div id="settopFeeName" style="font-size:11.5px;color:#4B5563;font-weight:800;word-break:keep-all;"></div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 6px;margin-top:3px;">
+            <span style="font-size:11.5px;font-weight:900;color:#5B21B6;">월 임대료</span>
+            <span id="settopFeeAmt" style="font-size:15px;font-weight:900;color:#6D28D9;white-space:nowrap;">0원</span>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:#6D28D9;margin-top:2px;">3년 약정 · 부가세 포함</div>
         </div>
-      </div>
-      <div id="wifiFieldWrap">
-        <div class="field-lbl" id="wifiFieldLbl">와이파이 임대료</div>
-        <select class="sel" id="wifiSelect" onchange="recalc()">
-          <option value="none">기본 포함 / 미신청 (0원)</option>
-          <option value="home">추가 임대 (월 1,100원)</option>
-        </select>
-        <div id="ktWifiNote" class="hide" style="margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;color:#5B21B6;line-height:1.45;"></div>
       </div>
       <div>
         <div class="field-lbl">추가 TV 상품 (2·3대째)</div>
@@ -326,17 +313,6 @@
           <option value="1">1대 추가 (총 2대)</option>
           <option value="2">2대 추가 (총 3대)</option>
         </select>
-      </div>
-      <div>
-        <div class="field-lbl" style="margin-top:8px;">셋톱박스 선택 (3년 약정 · 부가세 포함)</div>
-        <select class="sel" id="settopSelect" onchange="recalc()"></select>
-        <div id="settopFeeInfo" class="hide" style="margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:10px;padding:9px 11px;line-height:1.45;">
-          <div id="settopFeeName" style="font-size:12.5px;color:#4B5563;font-weight:800;word-break:keep-all;"></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:3px;">
-            <span style="font-size:13px;font-weight:900;color:#5B21B6;white-space:nowrap;">셋톱박스 월 임대료</span>
-            <span id="settopFeeAmt" style="font-size:16px;font-weight:900;color:#6D28D9;white-space:nowrap;">0원</span>
-          </div>
-        </div>
       </div>
       <div>
         <div class="field-lbl" style="margin-top:8px;">설치비 (1회 청구 · 부가세 포함 · 자동 계산)</div>
@@ -380,6 +356,35 @@
           <div id="ktPremNote" class="hide" style="margin-top:8px;background:#FFFBEB;border:1.5px solid #FCD34D;border-radius:9px;padding:8px 10px;font-size:11.5px;font-weight:800;color:#B45309;line-height:1.5;word-break:keep-all;"></div>
         </div>
         <div id="ktSingleNote" class="hide" style="margin-top:8px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:8px 10px;font-size:11.5px;font-weight:800;color:#5B21B6;line-height:1.5;word-break:keep-all;"></div>
+      </div>
+      <div id="helloOptionBox" class="hide">
+        <div class="field-lbl" style="color:#7C3AED;margin-top:0;">분배방식 · 결합 통신사</div>
+        <select class="sel" id="helloMode" onchange="onHelloModeChange()">
+          <option value="uplus">LG U+ 휴대폰 결합 (참 쉬운 케이블 가족 결합)</option>
+          <option value="skt">SKT 휴대폰 결합 (온가족케이블플랜 · 2회선↑)</option>
+        </select>
+      </div>
+      <div id="skOptionBox" class="hide">
+        <div class="field-lbl" style="color:#7C3AED;margin-top:0;">분배방식</div>
+        <select class="sel" id="skMode" onchange="renderUsimLines();recalc()">
+          <option value="equal">균등 분배 (결합 회선 1/N 나누기)</option>
+          <option value="assign1">지정 할인 (1회선 몰아주기)</option>
+        </select>
+      </div>
+      <div id="lgOptionBox" class="hide">
+        <div class="field-lbl" style="color:#7C3AED;margin-top:0;">분배방식</div>
+        <select class="sel" id="lgMode" onchange="recalc()">
+          <option value="cham">참 쉬운 가족 결합 (요금제 무관 · 전 속도)</option>
+          <option value="together">U+ 투게더 결합 (85,000원↑ 무제한 · 500M↑)</option>
+        </select>
+      </div>
+      <div id="skyOptionBox" class="hide">
+        <div class="field-lbl" style="color:#7C3AED;margin-top:0;">스카이라이프 유심 결합 (자사 유심 시 · 자동 계산)</div>
+        <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800;color:#5B21B6;line-height:1.45;">
+          유심 결합은 인터넷 할인 없이 <b>TV 결합 요금의 10%(1회선) · 20%(2회선 이상, 최대 2회선)</b>만 할인됩니다.<br>
+          · 베이직 6,050원 → 1회선 <b>-605원</b> · 2회선 <b>-1,210원</b><br>
+          · 플러스 7,150원 → 1회선 <b>-715원</b> · 2회선 <b>-1,430원</b>
+        </div>
       </div>
       <div id="usimLines"></div>
       <button class="btn-sub" style="width:100%;margin-top:8px;padding:10px;border-color:#7C3AED;background:#F3EEFF;color:#6D28D9;" onclick="addUsimLine()">+ 유심 회선 추가 (최대 4회선)</button>
@@ -1335,12 +1340,14 @@ function renderWifiSelect() {
     if (note) note.classList.remove('hide');
   } else if (state.carrier === '스카이라이프') {
     // V6.8: 100M는 와이파이 1,100원 포함, 200M 이상 무료 → 별도 선택 없이 상품가에 반영
-    sel.innerHTML = `<option value="none">기본 포함 (100M 1,100원 · 200M 이상 무료)</option>`;
+    // V7.4: 2열(와이파이|셋톱) 폭에 맞춰 고른 속도의 와이파이 임대료만 짧게 표시(계산은 wifiFeeOf 그대로)
+    const skySp = getNetSpeed();
+    sel.innerHTML = `<option value="none">기본 포함${skySp === 0 ? ' (100M 1,100원 · 200M↑ 무료)' : (skySp === 100 ? ' (+1,100원)' : ' (무료)')}</option>`;
     sel.value = 'none';
     if (lbl) lbl.textContent = '와이파이 임대료 · 스카이라이프';
     if (note) note.classList.add('hide');
   } else {
-    sel.innerHTML = `<option value="none">기본 포함 / 미신청 (0원)</option><option value="home">추가 임대 (월 1,100원)</option>`;
+    sel.innerHTML = `<option value="none">미신청 (0원)</option><option value="home">추가 임대 (1,100원)</option>`;   // V7.4: 2열(와이파이|셋톱) 폭에서 잘리지 않게
     sel.value = (cur === 'home') ? 'home' : 'none';
     if (lbl) lbl.textContent = '와이파이 임대료';
     if (note) note.classList.add('hide');
