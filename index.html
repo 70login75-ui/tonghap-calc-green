@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V6.5</div>
+      <div class="ver-pill">제작자 손영곤 V6.6</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -143,7 +143,7 @@
         <div style="border-bottom:1px solid #E2E8F0;padding-bottom:10px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="font-size:11.5px;color:#7C3AED;font-weight:900;letter-spacing:0.2px;">① 인터넷·TV 예상 금액</span>
-            <span id="sumWiredTermBadge" style="font-size:10px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:1px 6px;white-space:nowrap;">3년 약정</span>
+            <span id="sumWiredTermBadge" style="font-size:10px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:1px 6px;white-space:nowrap;">3년 약정 고정</span>
           </div>
           <div id="sumWiredBreakdown" style="display:flex;flex-direction:column;gap:7px;margin-top:5px;"></div>
           <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:9px;padding-top:7px;border-top:1px dashed #CBD5E1;">
@@ -175,7 +175,7 @@
           </div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #CBD5E1;padding-top:9px;margin-top:9px;font-weight:900;font-size:16px;">
-          <span style="color:#0F172A;white-space:nowrap;">총 할인 금액 <span style="font-size:10.5px;font-weight:800;color:#64748B;">(정가 대비)</span></span>
+          <span style="color:#0F172A;white-space:nowrap;">총 할인 금액</span>
           <span style="color:#DC2626;font-size:17.5px;white-space:nowrap;" id="sumDisc">-0원</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0 6px;font-size:11.5px;color:#475569;font-weight:800;margin-top:3px;line-height:1.4;" id="sumDiscBreak"></div>
@@ -189,16 +189,16 @@
     </div>
 
     <div class="card">
-      <div class="sec-title">1. 통신사 · 인터넷·TV 상품 <span class="sec-badge" id="termBadge">3년 약정</span></div>
+      <div class="sec-title">1. 통신사 · 인터넷·TV 상품 <span class="sec-badge" id="termBadge">3년 약정 고정</span></div>
       <div class="chips" id="carrierChips"></div>
       <div class="grid2">
         <div>
           <div class="field-lbl">약정 기간</div>
-          <select class="sel" id="termYears" onchange="recalc()">
-            <option value="3">3년 약정 (결합 100%)</option>
-            <option value="2">2년 약정 (결합 50%)</option>
-            <option value="1">1년 약정 (결합 25%)</option>
-          </select>
+          <div id="termFixedBox" style="display:flex;align-items:center;justify-content:space-between;gap:6px;background:#F3EEFF;border:1.5px solid #DDD6FE;border-radius:9px;padding:10px 12px;font-size:14px;font-weight:900;color:#5B21B6;line-height:1.3;">
+            <span style="white-space:nowrap;">🔒 3년 약정 고정</span>
+            <span style="font-size:11.5px;font-weight:800;color:#7C3AED;white-space:nowrap;">결합 100%</span>
+          </div>
+          <input type="hidden" id="termYears" value="3">
         </div>
         <div>
           <div class="field-lbl">현금지원 (사은품 원)</div>
@@ -301,10 +301,10 @@
       </div>
 <div style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:11px 12px;font-size:14px;font-weight:800;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px;font-size:10.5px;color:#94A3B8;font-weight:800;">
-          <span>유선 요금 분리 계산</span><span>무약정 → 약정 → 결합 → 실청구</span>
+          <span>유선 요금 분리 계산</span><span>3년 약정 → 결합 → 실청구</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
-          <span style="white-space:nowrap;font-size:13.5px;color:#374151;">인터넷·TV 무약정</span>
+          <span style="white-space:nowrap;font-size:13.5px;color:#374151;">인터넷·TV (3년 약정)</span>
           <span id="wiredCardOrig" style="white-space:nowrap;font-size:15px;color:#0F172A;">0원</span>
         </div>
         <div id="wiredCardComp" style="font-size:11px;color:#64748B;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
@@ -638,11 +638,10 @@ const TV_BUNDLE_DISC = {
 const CARRIERS = {
   'SKB': {
     name: 'SK브로드밴드',
-    // V6.5f: nc = 2026 SK브로드밴드 공식 무약정 정가 (약정할인 = nc − 3년 약정가, 청구액 불변)
     nets: [
-      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100, nc: 36300 },
-      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500, nc: 49500 },
-      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000, nc: 55000 }
+      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100 },
+      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500 },
+      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
@@ -706,11 +705,10 @@ const CARRIERS = {
   },
   'SKT': {
     name: 'SKT',
-    // V6.5f: nc = 2026 SK브로드밴드 공식 무약정 정가 (약정할인 = nc − 3년 약정가, 청구액 불변)
     nets: [
-      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100, nc: 36300 },
-      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500, nc: 49500 },
-      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000, nc: 55000 }
+      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100 },
+      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500 },
+      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
@@ -774,19 +772,17 @@ const CARRIERS = {
   },
   'KT': {
     name: 'KT',
-    // V6.5f: nc = KT 공식 약정별 요금표의 무약정 정가 (500M 베이직 46,200 → 3년 33,000)
     nets: [
-      { label: '100M 슬림 (22,000원)', price: 22000, speed: 100, nc: 39600 },
-      { label: '500M 베이직 (33,000원)', price: 33000, speed: 500, nc: 46200 },
-      { label: '1G 에센스 (38,500원)', price: 38500, speed: 1000, nc: 55000 }
+      { label: '100M 슬림 (22,000원)', price: 22000, speed: 100 },
+      { label: '500M 베이직 (33,000원)', price: 33000, speed: 500 },
+      { label: '1G 에센스 (38,500원)', price: 38500, speed: 1000 }
     ],
-    // V6.5f: nc = KT 지니TV 무약정 정가 (베이직 16,500 · 라이트 19,800 · 에센스 25,300 · 모든G 28,930)
     tvs: [
-      { label: '미가입 (인터넷 단독)', price: 0, nc: 0 },
-      { label: '지니 TV 베이직 (12,100원)', price: 12100, nc: 16500 },
-      { label: '지니 TV 라이트 (13,200원)', price: 13200, nc: 19800 },
-      { label: '지니 TV 에센스 (16,500원)', price: 16500, nc: 25300 },
-      { label: '지니 TV 모든G (19,800원)', price: 19800, nc: 28930 }
+      { label: '미가입 (인터넷 단독)', price: 0 },
+      { label: '지니 TV 베이직 (12,100원)', price: 12100 },
+      { label: '지니 TV 라이트 (13,200원)', price: 13200 },
+      { label: '지니 TV 에센스 (16,500원)', price: 16500 },
+      { label: '지니 TV 모든G (19,800원)', price: 19800 }
     ],
     settops: [
       { label: '지니 TV 셋톱박스 A2 · 케어 (5,500원)', price: 5500 },
@@ -869,11 +865,10 @@ const CARRIERS = {
   },
   'LG U+': {
     name: 'LG U+',
-    // V6.5f: nc = LG U+ 공식 무약정 정가 (와이파이기본 계열, 500M 56,100 → 3년 33,000)
     nets: [
-      { label: '100M 스마트 (22,000원)', price: 22000, speed: 100, nc: 42900 },
-      { label: '500M 와이파이 (33,000원)', price: 33000, speed: 500, nc: 56100 },
-      { label: '1G 스마트기가 (38,500원)', price: 38500, speed: 1000, nc: 64900 }
+      { label: '100M 스마트 (22,000원)', price: 22000, speed: 100 },
+      { label: '500M 와이파이 (33,000원)', price: 33000, speed: 500 },
+      { label: '1G 스마트기가 (38,500원)', price: 38500, speed: 1000 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
@@ -1499,11 +1494,11 @@ function calcAutoInstallFee(carrier, hasTv, extraTvCnt, tvLabel) {
 function recalc() {
   const c = CARRIERS[state.carrier];
   const plans = getActivePlans();
-  const years = parseInt(document.getElementById('termYears').value, 10);
+  const years = 3;   // V6.6: 전 통신사 3년 약정 고정(사용자 지시) — 약정 선택 없음
   const ratio = years === 3 ? 1 : (years === 2 ? 0.5 : 0.25);
-  document.getElementById('termBadge').textContent = `${years}년 약정`;
+  document.getElementById('termBadge').textContent = '3년 약정 고정';
   const sumTermBadge = document.getElementById('sumWiredTermBadge');
-  if (sumTermBadge) sumTermBadge.textContent = `${years}년 약정`;
+  if (sumTermBadge) sumTermBadge.textContent = '3년 약정 고정';
 
   const netIdxVal = parseInt(document.getElementById('netSelect').value, 10);
   const netObj = netIdxVal === -1 ? { label: '선택 안함 (0원)', price: 0, speed: 0 } : (c.nets[netIdxVal] || c.nets[0]);
@@ -1562,7 +1557,7 @@ function recalc() {
   const mobileNetDisc = bRes.netDisc || 0;
   // V6.5e(사용자 추가 지시): KT·LG U+는 유심결합 인터넷 할인과 인터넷·TV 결합 할인을 각각 차감한다.
   //  SKB·SKT는 약관상 중복 불가 → 큰 쪽 하나만(Math.max) 유지. 스카이라이프·LG헬로비전도 기존(max) 유지.
-  const canStackWiredDisc = (state.carrier === 'KT' || state.carrier === 'LG U+');
+  const canStackWiredDisc = (state.carrier === 'KT' || state.carrier === 'LG U+');   // V6.6: KT·LG U+만 공식 약관상 2중 적용, SKB·SKT는 큰 쪽 하나만
   const netDiscFinal = canStackWiredDisc ? (mobileNetDisc + tvBundleDisc) : Math.max(mobileNetDisc, tvBundleDisc);
 
   // 유선 복지 감면 (기초연금 제외, 유선 결합과 중복 불가 -> 더 큰 쪽 적용)
@@ -1580,13 +1575,12 @@ function recalc() {
   const wiredBase = netObj.price + tvObj.price + extraTv + wifi + settopAdd;   // 유선 정가 합(인터넷·TV + 와이파이 + 셋톱)
   // V6.5e: ① 을 `인터넷·TV`(정가·할인·실청구) / `와이파이` / `셋톱박스` 로 나눠 계산한다.
   //  할인은 인터넷·TV 정가까지만 적용하고(초과분은 0 처리), 와이파이·셋톱은 정가 그대로 더한다.
-  const netTvOrig = netObj.price + tvObj.price + extraTv;   // 인터넷·TV 3년 약정가(청구 기준 · V6.5e와 동일)
-  // V6.5f(사용자 지시 "3년 약정할인을 먼저 빼고 그다음 인티결합 그다음 유심결합 순서"):
-  //  무약정 정가(nc) → 약정할인 → 인터넷·TV 결합 → 인터넷·TV·유심결합 순서로 차감한다.
-  //  nc 가 없는 상품은 약정할인 0 이 되어 실 청구액이 V6.5e와 1원도 달라지지 않는다.
-  const ncOf = o => (o && typeof o.nc === 'number') ? o.nc : (o ? o.price : 0);
-  const netNcOrig = ncOf(netObj) + ncOf(tvObj) + extraTv;         // 인터넷·TV 무약정 정가
-  const contractDisc = Math.max(0, netNcOrig - netTvOrig);        // 약정할인(무약정 정가 − 3년 약정가)
+  const netTvOrig = netObj.price + tvObj.price + extraTv;   // 인터넷·TV 3년 약정가(청구 기준)
+  // V6.6(사용자 지시 "3년 약정 고정"): 정가·약정할인 계산을 없앤다.
+  //  모든 통신사가 3년 약정(결합 100%)으로만 계산되므로
+  //  3년 약정가에서 바로 인터넷·TV 결합 → 인터넷·TV·유심결합 할인을 뺀다.
+  const netNcOrig = netTvOrig;   // 기준가 = 3년 약정가
+  const contractDisc = 0;        // 약정할인 없음(3년 약정 고정)
   // V6.5e: `인터넷·TV 결합`(TV 결합) / `인터넷·TV·유심결합`(유심 결합 인터넷 할인)을 따로 표시한다.
   const usimLinkedDisc = mobileNetDisc;   // 유심 결합으로 생기는 인터넷 할인
   let usimBundlePart = 0, tvBundlePart = 0;
@@ -1601,7 +1595,7 @@ function recalc() {
     }
   }
   const wiredDiscApplied = useWelfareWired ? welfareWiredDisc : (usimBundlePart + tvBundlePart + (bRes.tvDisc || 0));
-  const netTvDisc = Math.min(contractDisc + wiredDiscApplied, netNcOrig);   // 인터넷·TV 총 할인(약정 + 결합)
+  const netTvDisc = Math.min(wiredDiscApplied, netNcOrig);   // 인터넷·TV 총 할인(결합)
   const netTvFinal = Math.max(0, netNcOrig - netTvDisc);                    // 인터넷·TV 실 청구
   const wiredFinal = Math.max(0, netTvFinal + wifi + settopAdd);    // ① 유선 소계(인터넷·TV + 와이파이 + 셋톱)
 
@@ -1665,8 +1659,8 @@ function recalc() {
   const totalMonthly = Math.max(0, totalBeforeAff - state.affDisc);
   const giftMonthly = Math.round(gift / (years * 12));
   const realMonthly = Math.max(0, totalMonthly - giftMonthly);
-  // V6.5f: 총 할인은 무약정 정가 기준 → 약정할인 + 결합·선택약정·카드 할인 합계
-  const totalDisc = (Number(contractDisc)||0) + (Number(wiredDiscApplied)||0) + (Number(bRes.mobDiscTotal)||0) + (Number(sel25Sum)||0) + (Number(youthTotal)||0) + (Number(welfareMobTotal)||0) + (Number(state.affDisc)||0);
+  // V6.6: 총 할인 = 결합·선택약정·카드 할인 합계(3년 약정 고정 → 약정할인 항목 없음)
+  const totalDisc = (Number(wiredDiscApplied)||0) + (Number(bRes.mobDiscTotal)||0) + (Number(sel25Sum)||0) + (Number(youthTotal)||0) + (Number(welfareMobTotal)||0) + (Number(state.affDisc)||0);
 
   document.getElementById('sumMonthly').innerHTML = `${fmt(totalMonthly)}<span>원 / 월</span>`;
 
@@ -1681,8 +1675,7 @@ function recalc() {
     if (usimBundlePart > 0) wPartObjs.push({ k: 'usim', label: '인터넷·TV·유심결합', amt: usimBundlePart });
     if ((bRes.tvDisc || 0) > 0) wPartObjs.push({ k: 'tvadd', label: (state.carrier === 'SKB' || state.carrier === 'SKT') ? 'B tv' : 'TV', amt: bRes.tvDisc });
   }
-  const contractLabel = `${years}년 약정할인`;
-  const allPartObjs = (contractDisc > 0 ? [{ k: 'contract', label: contractLabel, amt: contractDisc }] : []).concat(wPartObjs);
+  const allPartObjs = wPartObjs;
   const wParts = allPartObjs.map(p => `${p.label} -${fmt(p.amt)}`);
   const wDetailTxt = wParts.length ? wParts.join(' · ') : '적용된 할인 없음';
   const wDetailTxt2 = wDetailTxt;   // 테스트용 평문(① 표시줄·1번 카드 괄호 내역과 같은 문자열)
@@ -1701,8 +1694,8 @@ function recalc() {
   const wBreakEl = document.getElementById('sumWiredBreakdown');
   if (wBreakEl) {
     const wComp = [];
-    if (netObj.price > 0) wComp.push(`인터넷 ${fmt(ncOf(netObj))}`);
-    if (tvObj.price > 0) wComp.push(`TV ${fmt(ncOf(tvObj))}`);
+    if (netObj.price > 0) wComp.push(`인터넷 ${fmt(netObj.price)}`);
+    if (tvObj.price > 0) wComp.push(`TV ${fmt(tvObj.price)}`);
     if (extraTv > 0) wComp.push(`추가TV ${extraTvCnt}대 ${fmt(extraTv)}`);
     const extraRow = (name, amt) => `
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
@@ -1711,14 +1704,13 @@ function recalc() {
       </div>`;
     wBreakEl.innerHTML = `
       <div>
-        <!-- V6.5f: 무약정 정가 → N년 약정할인 → 인터넷·TV 결합 → 인터넷·TV·유심결합 → 실 청구 -->
+        <!-- V6.6: 3년 약정가 → 인터넷·TV 결합 → 인터넷·TV·유심결합 → 실 청구 -->
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
-          <span style="font-weight:900;font-size:13.5px;color:#0F172A;white-space:nowrap;">인터넷·TV 무약정 정가</span>
-          <span style="font-weight:900;font-size:15.5px;color:#0F172A;white-space:nowrap;">${fmt(netNcOrig)}원</span>
+          <span style="font-weight:900;font-size:13.5px;color:#0F172A;white-space:nowrap;">인터넷·TV</span>
+          <span style="font-weight:900;font-size:15.5px;color:#0F172A;white-space:nowrap;">${fmt(netTvOrig)}원</span>
         </div>
         ${wComp.length ? `<div style="font-size:11px;color:#64748B;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${wComp.join(' · ')}</div>` : ''}
         ${allPartObjs.map(p => discLineHtml(p, 'wDisc-')).join('')}
-        ${years !== 3 ? `<div style="font-size:10.5px;color:#94A3B8;font-weight:700;margin-top:2px;">* 인터넷·TV 요금은 3년 약정가 기준입니다</div>` : ''}
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:6px;padding-top:6px;border-top:1px dashed #CBD5E1;">
           <span style="font-weight:900;font-size:13px;color:#0F172A;white-space:nowrap;">인터넷·TV 실 청구</span>
           <span style="white-space:nowrap;">
@@ -1739,8 +1731,8 @@ function recalc() {
   const wcPay = document.getElementById('wiredCardPay');
   if (wcOrig) wcOrig.textContent = `${fmt(netNcOrig)}원`;
   const wcCompParts = [];
-  if (netObj.price > 0) wcCompParts.push(`인터넷 ${fmt(ncOf(netObj))}`);
-  if (tvObj.price > 0) wcCompParts.push(`TV ${fmt(ncOf(tvObj))}`);
+  if (netObj.price > 0) wcCompParts.push(`인터넷 ${fmt(netObj.price)}`);
+  if (tvObj.price > 0) wcCompParts.push(`TV ${fmt(tvObj.price)}`);
   if (extraTv > 0) wcCompParts.push(`추가TV ${extraTvCnt}대 ${fmt(extraTv)}`);
   if (wcComp) wcComp.textContent = wcCompParts.join(' · ');
   if (wcLines) wcLines.innerHTML = allPartObjs.map(p => discLineHtml(p, 'wcd-')).join('');
@@ -1788,10 +1780,8 @@ function recalc() {
   document.getElementById('sumDisc').textContent = `-${fmt(totalDisc)}원`;
   const discBreakEl = document.getElementById('sumDiscBreak');
   if (discBreakEl) {
-    const bundleSideDisc = Math.max(0, totalDisc - contractDisc);
     const bdParts = [];
-    if (contractDisc > 0) bdParts.push(`${contractLabel} -${fmt(contractDisc)}`);
-    if (bundleSideDisc > 0) bdParts.push(`결합·선택약정·카드 -${fmt(bundleSideDisc)}`);
+    if (totalDisc > 0) bdParts.push(`결합·선택약정·카드 -${fmt(totalDisc)}`);
     // 좁은 화면(320)에서는 항목 단위로만 줄바꿈되도록 nowrap 조각으로 그린다
     discBreakEl.innerHTML = bdParts.map(p => `<span style="white-space:nowrap;">${p}</span>`).join(' ');
   }
@@ -2031,7 +2021,7 @@ function loadQuoteItem(idx) {
   const q = getSavedQuotes()[idx];
   if (!q) return;
   selectCarrier(q.carrier);
-  document.getElementById('termYears').value = q.termYears;
+  document.getElementById('termYears').value = '3';   // V6.6: 옛 견적도 3년 약정 고정
   document.getElementById('netSelect').value = q.netIdx;
   document.getElementById('tvSelect').value = q.tvIdx;
   document.getElementById('giftAmt').value = q.giftAmt;
@@ -2096,7 +2086,7 @@ function sendQuoteToCrm() {
     return {
       carrier: crmCarrier,
       plan: cleanLbl(p.label || p.name || ''),
-      term: u.sel25 ? '24개월(선약)' : '무약정'
+      term: u.sel25 ? '24개월(선약)' : '선택약정 미적용'
     };
   });
   const memoLines = [
