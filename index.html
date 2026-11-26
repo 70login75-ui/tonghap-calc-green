@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V7.1</div>
+      <div class="ver-pill">제작자 손영곤 V7.2</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -148,18 +148,17 @@
       <!-- ── ① 인터넷·TV ─────────────────────────────────────── -->
       <div style="margin-top:9px;padding-top:8px;border-top:1px dashed #DDD6FE;">
         <div style="display:flex;align-items:center;gap:5px;">
-          <span style="font-size:11.5px;font-weight:900;color:#6D28D9;">① 인터넷·TV</span>
-          <span style="font-size:9px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:0.5px 5px;">3년 약정</span>
-          <span id="v71WiredName" style="margin-left:auto;min-width:0;font-size:9px;font-weight:800;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:205px;"></span>
+          <span id="v71WiredName" style="min-width:0;font-size:9.5px;font-weight:800;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;"></span>
         </div>
-        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:5px;">
-          <span style="font-size:11px;font-weight:900;color:#334155;white-space:nowrap;">인터넷·TV 요금 <span style="font-size:9.5px;font-weight:800;color:#94A3B8;">(기준 <b id="v71WiredOrig" style="font-size:9.5px;font-weight:900;color:#64748B;">0</b>)</span></span>
-          <b id="v71NetTvFinal" style="font-size:15px;font-weight:900;color:#009A3E;white-space:nowrap;">0원</b>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:3px;">
+          <span style="font-size:14px;font-weight:900;color:#7C3AED;white-space:nowrap;">인터넷·TV 요금</span>
+          <span id="v71TermBadge" style="font-size:9px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:0.5px 5px;white-space:nowrap;">3년 약정</span>
+          <b id="v71NetTvFinal" style="margin-left:auto;font-size:15px;font-weight:900;color:#009A3E;white-space:nowrap;">0원</b>
         </div>
         <div id="v71WiredChips" style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px;"></div>
         <div id="v71WiredExtra" style="display:flex;align-items:baseline;justify-content:flex-start;flex-wrap:wrap;gap:0;margin-top:5px;font-size:10.5px;font-weight:800;color:#475569;"></div>
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid #E2E8F0;">
-          <span style="font-size:11.5px;font-weight:900;color:#0F172A;white-space:nowrap;">인터넷·TV 실 청구요금</span>
+          <span style="font-size:14px;font-weight:900;color:#0F172A;white-space:nowrap;">인터넷·TV 실 청구요금</span>
           <span style="white-space:nowrap;">
             <span id="v71WiredPill" style="font-size:9px;font-weight:900;color:#009A3E;background:#E8FBF0;border:1px solid #BBF7D0;border-radius:5px;padding:0.5px 4px;margin-right:3px;">VAT 포함</span>
             <b id="v71WiredSub" style="font-size:13.5px;font-weight:900;color:#009A3E;">0원</b>
@@ -170,7 +169,7 @@
       <!-- ── ② 유심 (소계 줄 없음 — V7.1c) ───────────────────── -->
       <div style="margin-top:7px;padding-top:7px;border-top:1px dashed #DDD6FE;">
         <div style="display:flex;align-items:center;gap:5px;">
-          <span style="font-size:11.5px;font-weight:900;color:#6D28D9;">② 유심</span>
+          <span style="font-size:14px;font-weight:900;color:#7C3AED;white-space:nowrap;">휴대폰요금 <span style="font-size:12.5px;font-weight:800;color:#7C3AED;">(유심)</span></span>
           <span id="v71UsimMode" style="font-size:9px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:0.5px 5px;">각각할인</span>
           <span id="v71UsimCount" style="margin-left:auto;font-size:10px;font-weight:900;color:#64748B;">0회선</span>
         </div>
@@ -180,7 +179,7 @@
       <!-- ── 총 할인 (V7.1d: 총 합계 줄 삭제) ────────────────────── -->
       <div style="margin-top:9px;padding-top:8px;border-top:1.5px solid #CBD5E1;">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;">
-          <span style="font-size:11.5px;font-weight:900;color:#0F172A;white-space:nowrap;">총 할인 <span style="font-size:9.5px;font-weight:800;color:#94A3B8;">(기준 요금 대비)</span></span>
+          <span style="font-size:14px;font-weight:900;color:#0F172A;white-space:nowrap;">총할인금액 <span style="font-size:9.5px;font-weight:800;color:#94A3B8;">(기준 요금 대비)</span></span>
           <b id="v71Disc" style="font-size:14.5px;font-weight:900;color:#DC2626;white-space:nowrap;">0원</b>
         </div>
         <div id="v71DiscBreak" style="font-size:9.5px;font-weight:800;color:#64748B;text-align:right;margin-top:1px;line-height:1.35;word-break:keep-all;"></div>
@@ -365,38 +364,6 @@
       </div>
     </div>
       </div>
-<div style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:11px 12px;font-size:14px;font-weight:800;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px;font-size:10.5px;color:#94A3B8;font-weight:800;">
-          <span>유선 요금 분리 계산</span><span>3년 약정할인 → 결합 → 실청구</span>
-        </div>
-        <div style="font-size:10.5px;color:#6D28D9;font-weight:900;margin-bottom:5px;line-height:1.3;word-break:keep-all;">※ 모든 금액 부가세 포함 실 청구액</div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
-          <span style="white-space:nowrap;font-size:13.5px;color:#374151;">인터넷·TV 기준 요금</span>
-          <span id="wiredCardOrig" style="white-space:nowrap;font-size:15px;color:#0F172A;">0원</span>
-        </div>
-        <div id="wiredCardComp" style="font-size:11px;color:#64748B;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-        <div id="wiredCardDiscLines"></div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:6px;padding-top:6px;border-top:1px dashed #CBD5E1;">
-          <span style="white-space:nowrap;font-size:13.5px;color:#374151;">인터넷·TV 실 청구</span>
-          <span style="white-space:nowrap;">
-            <span style="font-size:12px;color:#DC2626;" id="wiredCardDisc"></span>
-            <span style="font-size:15px;color:#009A3E;" id="wiredCardPay">0원</span>
-          </span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:5px;color:#374151;">
-          <span style="white-space:nowrap;font-size:13.5px;">와이파이</span>
-          <span id="wiredCardWifi" style="white-space:nowrap;color:#009A3E;">0원</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;color:#374151;">
-          <span style="white-space:nowrap;font-size:13.5px;">셋톱박스</span>
-          <span id="wiredCardSettop" style="white-space:nowrap;color:#009A3E;">0원</span>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:2px 6px;border-top:1px solid #CBD5E1;padding-top:7px;margin-top:7px;font-size:16px;font-weight:900;color:#111827;">
-          <span style="white-space:nowrap;">총 유선 실 청구 금액<span style="font-size:10.5px;color:#6D28D9;margin-left:5px;">(부가세 포함)</span></span>
-          <span id="wiredCardWiredTotal" style="color:#009A3E;white-space:nowrap;">0원</span>
-        </div>
-        <div id="wiredCardVatSub" style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0 5px;font-size:11px;color:#475569;font-weight:800;margin-top:3px;line-height:1.4;"></div>
-      </div>
     </div>
 
     <div class="card">
@@ -404,7 +371,6 @@
         2. 휴대폰 유심 결합 (공시지원금 없음 · 부가세 포함)
         <span class="sec-badge" style="background:#F3EEFF;color:#6D28D9;" id="usimCountBadge">1회선</span>
       </div>
-      <div id="usimDistBox" style="margin-bottom:10px;"></div>
       <div id="usimLines"></div>
       <button class="btn-sub" style="width:100%;margin-top:8px;padding:10px;border-color:#7C3AED;background:#F3EEFF;color:#6D28D9;" onclick="addUsimLine()">+ 유심 회선 추가 (최대 4회선)</button>
     </div>
