@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V6.7</div>
+      <div class="ver-pill">제작자 손영곤 V6.8</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -244,12 +244,12 @@
         </select>
       </div>
       <div id="skyOptionBox" class="hide">
-        <div class="field-lbl" style="color:#7C3AED;">스카이라이프 모바일 더블할인 (자사 유심 시)</div>
-        <select class="sel" id="skyDouble" onchange="recalc()">
-          <option value="0">미적용 (인터넷 결합만)</option>
-          <option value="0.1">TV 요금 10% 더블할인</option>
-          <option value="0.2">TV 요금 20% 더블할인</option>
-        </select>
+        <div class="field-lbl" style="color:#7C3AED;">스카이라이프 유심 결합 (자사 유심 시 · 자동 계산)</div>
+        <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800;color:#5B21B6;line-height:1.45;">
+          유심 결합은 인터넷 할인 없이 <b>TV 결합 요금의 10%(1회선) · 20%(2회선 이상, 최대 2회선)</b>만 할인됩니다.<br>
+          · 베이직 6,050원 → 1회선 <b>-605원</b> · 2회선 <b>-1,210원</b><br>
+          · 플러스 7,150원 → 1회선 <b>-715원</b> · 2회선 <b>-1,430원</b>
+        </div>
       </div>
       <div id="wifiFieldWrap">
         <div class="field-lbl" id="wifiFieldLbl">와이파이 임대료</div>
@@ -628,12 +628,26 @@
 <script>
 // 인터넷+TV 결합 시 인터넷 요금 할인 (3년 약정, 부가세 포함) — 2026-11-26 공식 요금표
 // 100M는 SKB·SKT만 -2,200 / KT·LG U+는 0 (변동 없음). KT는 TV 결합 요금이 3년 약정만 공식 게시.
+// V6.8(감사 보고서 2026-11-26): LG헬로비전·스카이라이프 TV 결합 할인 추가
+//  · LG헬로: 헬로tv 결합 시 인터넷 할인 100M 4,460 / 500M 6,270 / 1G 6,600 (유무선 결합과 합산)
+//  · 스카이라이프: 홈결합(요금할인형) 100M·200M 16,500 / 500M·1G 17,600 — 베이직·플러스만(All·초이스 제외)
 const TV_BUNDLE_DISC = {
   'SKB':   { 100: 2200, 500: 5500, 1000: 5500 },
   'SKT':   { 100: 2200, 500: 5500, 1000: 5500 },
   'KT':    { 100: 0,    500: 5500, 1000: 5500 },
-  'LG U+': { 100: 0,    500: 5500, 1000: 5500 }
+  'LG U+': { 100: 0,    500: 5500, 1000: 5500 },
+  'LG헬로': { 100: 4460, 500: 6270, 1000: 6600 },
+  '스카이라이프': { 100: 16500, 200: 16500, 500: 17600, 1000: 17600 }
 };
+
+// V6.8(감사 보고서): 균등 분배 시 Math.floor로 1원씩 모자라던 문제 — 나머지를 앞 회선부터 1원씩 더해 합계를 맞춘다.
+function splitEven(total, n) {
+  if (!(n > 0)) return [];
+  const t = Math.round(total);
+  const base = Math.floor(t / n);
+  const rem = t - base * n;
+  return Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0));
+}
 
 const CARRIERS = {
   'SKB': {
@@ -647,9 +661,7 @@ const CARRIERS = {
       { label: '미가입 (인터넷 단독)', price: 0 },
       { label: 'B tv 이코노미 (9,900원)', price: 9900 },
       { label: 'B tv 스탠다드 (13,200원)', price: 13200 },
-      { label: 'B tv All (16,500원)', price: 16500 },
-      { label: 'B tv All+ (22,000원)', price: 22000 },
-      { label: 'B tv+ max (23,100원)', price: 23100 }
+      { label: 'B tv All (16,500원)', price: 16500 }
     ],
     settops: [
       { label: 'Smart 3 (4,400원)', price: 4400 },
@@ -681,7 +693,7 @@ const CARRIERS = {
       const tvDisc = Math.round(tvBase * ratio);
       const mobDiscTotal = Math.round(mobBase * ratio);
       const skMode = (document.getElementById('skMode') || {}).value || 'equal';
-      const perLine = cnt > 0 ? (skMode === 'assign1' ? plansList.map((_, i) => i === (Math.min(state.assignIdx || 0, plansList.length - 1)) ? mobDiscTotal : 0) : plansList.map(() => Math.floor(mobDiscTotal / cnt))) : [];
+      const perLine = cnt > 0 ? (skMode === 'assign1' ? plansList.map((_, i) => i === (Math.min(state.assignIdx || 0, plansList.length - 1)) ? mobDiscTotal : 0) : splitEven(mobDiscTotal, cnt)) : [];
       return { netDisc, tvDisc, mobDiscTotal, perLine };
     },
     plans: [
@@ -714,9 +726,7 @@ const CARRIERS = {
       { label: '미가입 (인터넷 단독)', price: 0 },
       { label: 'B tv 이코노미 (9,900원)', price: 9900 },
       { label: 'B tv 스탠다드 (13,200원)', price: 13200 },
-      { label: 'B tv All (16,500원)', price: 16500 },
-      { label: 'B tv All+ (22,000원)', price: 22000 },
-      { label: 'B tv+ max (23,100원)', price: 23100 }
+      { label: 'B tv All (16,500원)', price: 16500 }
     ],
     settops: [
       { label: 'Smart 3 (4,400원)', price: 4400 },
@@ -748,7 +758,7 @@ const CARRIERS = {
       const tvDisc = Math.round(tvBase * ratio);
       const mobDiscTotal = Math.round(mobBase * ratio);
       const skMode = (document.getElementById('skMode') || {}).value || 'equal';
-      const perLine = cnt > 0 ? (skMode === 'assign1' ? plansList.map((_, i) => i === (Math.min(state.assignIdx || 0, plansList.length - 1)) ? mobDiscTotal : 0) : plansList.map(() => Math.floor(mobDiscTotal / cnt))) : [];
+      const perLine = cnt > 0 ? (skMode === 'assign1' ? plansList.map((_, i) => i === (Math.min(state.assignIdx || 0, plansList.length - 1)) ? mobDiscTotal : 0) : splitEven(mobDiscTotal, cnt)) : [];
       return { netDisc, tvDisc, mobDiscTotal, perLine };
     },
     plans: [
@@ -836,7 +846,7 @@ const CARRIERS = {
       if (mode === 'assign1') {
         const aIdx = Math.min(state.assignIdx || 0, plansList.length - 1); perLine = plansList.map((_, i) => i === aIdx ? mobDiscTotal : 0);
       } else if (mode === 'equal') {
-        perLine = plansList.map(() => Math.floor(mobDiscTotal / cnt));
+        perLine = splitEven(mobDiscTotal, cnt);
       } else {
         perLine = plansList.map(p => sum > 0 ? Math.round(mobDiscTotal * (p.price / sum)) : 0);
       }
@@ -895,9 +905,10 @@ const CARRIERS = {
       const lgMode = (document.getElementById('lgMode') || {}).value || 'cham';
       if (lgMode === 'together') {
         const netBase = (speed >= 500) ? 11000 : 0;
-        const netDisc = Math.round(netBase * ratio);
         const eligIdxs = plansList.map((p, i) => p.price >= 85000 ? i : -1).filter(i => i >= 0);
         const ec = eligIdxs.length;
+        // V6.8(감사 보고서): U+ 투게더는 85,000원↑ 요금제 2회선 이상이 결합 성립 조건 — 1회선이면 인터넷 할인 없음
+        const netDisc = (ec >= 2) ? Math.round(netBase * ratio) : 0;
         const unit = ec >= 4 ? 20000 : (ec === 3 ? 14000 : (ec === 2 ? 10000 : 0));
         const perLine = plansList.map(p => (p.price >= 85000 && ec >= 2) ? unit : 0);
         const mobDiscTotal = perLine.reduce((a, b) => a + b, 0);
@@ -940,15 +951,18 @@ const CARRIERS = {
   '스카이라이프': {
     name: 'KT스카이라이프',
     nets: [
-      { label: '100M 인터넷 (19,800원)', price: 19800, speed: 100 },
-      { label: '200M 인터넷 (22,000원)', price: 22000, speed: 200 },
-      { label: '500M 인터넷 (27,500원)', price: 27500, speed: 500 }
+      // V6.8(감사 보고서): 2026-11-26 공식 3년 약정·부가세 포함 100M 16,500 / 200M 18,700 / 500M 22,000 / 1G 25,300
+      { label: '100M 인터넷 (16,500원)', price: 16500, speed: 100 },
+      { label: '200M 인터넷 (18,700원)', price: 18700, speed: 200 },
+      { label: '500M 인터넷 (22,000원)', price: 22000, speed: 500 },
+      { label: '1G 인터넷 (25,300원)', price: 25300, speed: 1000 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
       { label: 'sky All TV (12,100원)', price: 12100 },
       { label: 'sky 베이직 IPTV (18,700원)', price: 18700 },
-      { label: 'sky 플러스 IPTV (19,800원)', price: 19800 }
+      { label: 'sky 플러스 IPTV (19,800원)', price: 19800 },
+      { label: 'sky 초이스 TV (28,600원)', price: 28600 }
     ],
     settops: [
       { label: 'sky All 기본 수신기 (1,100원)', price: 1100 },
@@ -957,14 +971,19 @@ const CARRIERS = {
     extraTvs: [
       { label: '추가 없음 (0원)', price: 0 },
       { label: 'sky All 복수할인 30%+수신기 (9,570원)', price: 9570 },
-      { label: 'sky 베이직 복수할인+수신기 (16,390원)', price: 16390 }
+      { label: 'sky 베이직 추가 (6,050원)', price: 6050 },
+      { label: 'sky 플러스 추가 (6,600원)', price: 6600 }
     ],
-    calcBundle: (speed, hasTv, plansList, ratio, tvPrice) => {
+    // V6.8(감사 보고서): 인터넷과 모바일의 결합 할인은 제공되지 않음(0원).
+    //  유심 결합 = TV 결합 기준가(베이직 6,050 / 플러스 7,150)의 10%(1회선)·20%(2회선 이상, 최대 2회선)를 TV에서 차감.
+    calcBundle: (speed, hasTv, plansList, ratio, tvPrice, tvLabel) => {
       const cnt = plansList.length;
-      const netBase = cnt > 0 ? ({ 100: 2200, 200: 2200, 500: 3300 }[speed] || 0) : 0;
-      const dblRate = parseFloat((document.getElementById('skyDouble') || {}).value) || 0;
-      const tvDisc = (hasTv && dblRate > 0) ? Math.round((tvPrice || 0) * dblRate) : 0;
-      return { netDisc: Math.round(netBase * ratio), tvDisc, mobDiscTotal: 0, perLine: plansList.map(() => 0) };
+      const lbl = String(tvLabel || '');
+      const tvBundleBase = lbl.includes('베이직') ? 6050 : (lbl.includes('플러스') ? 7150 : 0);
+      const lines = Math.min(cnt, 2);
+      const tvDisc = (hasTv && tvBundleBase > 0 && lines > 0)
+        ? Math.round(tvBundleBase * (lines >= 2 ? 0.20 : 0.10) * ratio) : 0;
+      return { netDisc: 0, tvDisc, mobDiscTotal: 0, perLine: plansList.map(() => 0) };
     },
     plans: [
       { label: '자급제/모바일 33,000원', price: 33000 },
@@ -974,8 +993,9 @@ const CARRIERS = {
   'LG헬로': {
     name: 'LG헬로비전',
     nets: [
-      { label: '100M 광랜 (18,700원)', price: 18700, speed: 100 },
-      { label: '500M 기가라이트 (25,300원)', price: 25300, speed: 500 },
+      // V6.8(감사 보고서): 2026년 공식 3년 약정가 100M 20,790 / 500M 29,260 / 1G 30,800
+      { label: '100M 광랜 (20,790원)', price: 20790, speed: 100 },
+      { label: '500M 기가라이트 (29,260원)', price: 29260, speed: 500 },
       { label: '1G 플래티넘기가 (30,800원)', price: 30800, speed: 1000 }
     ],
     tvs: [
@@ -994,14 +1014,17 @@ const CARRIERS = {
       { label: '헬로tv 이코노미 복수+UHD (11,000원)', price: 11000 },
       { label: '헬로tv 뉴베이직 복수+UHD (11,000원)', price: 11000 }
     ],
-    calcBundle: (speed, hasTv, plansList, ratio) => {
+    calcBundle: (speed, hasTv, plansList, ratio, tvPrice, tvLabel, netPrice) => {
       const cnt = plansList.length;
       if (cnt === 0) return { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: [] };
       const hMode = (document.getElementById('helloMode') || {}).value || 'uplus';
-      const netBase = { 100: 5082, 500: 5852, 1000: 6160 }[speed] || 0;
+      // V6.8(감사 보고서): 100M 인터넷 할인 5,082 → 4,158(20%). 5,082는 광랜 160M 값이었다(공식 결합 페이지 확인).
+      const netBase = { 100: 4158, 500: 5852, 1000: 6160 }[speed] || 0;
       let netDisc = Math.round(netBase * ratio);
 
       if (hMode === 'skt') {
+        // V6.8: 온가족케이블플랜 4회선 22,000원은 '인터넷 월정액 33,000원 이상'일 때만(속도 기준 아님)
+        const hiTier = (Number(netPrice) || 0) >= 33000;
         netDisc = cnt >= 2 ? Math.round(netBase * ratio) : 0;
         let mobBase = 0;
         if (cnt === 2) {
@@ -1010,13 +1033,13 @@ const CARRIERS = {
         } else if (cnt === 3) {
           mobBase = 16500;
         } else if (cnt >= 4) {
-          mobBase = (speed >= 500) ? 22000 : 16500;
+          mobBase = hiTier ? 22000 : 16500;
         }
         const mobDiscTotal = Math.round(mobBase * ratio);
         const skMode = (document.getElementById('skMode') || {}).value || 'equal';
         const perLine = skMode === 'assign1'
           ? plansList.map((_, i) => i === (Math.min(state.assignIdx || 0, plansList.length - 1)) ? mobDiscTotal : 0)
-          : plansList.map(() => Math.floor(mobDiscTotal / cnt));
+          : splitEven(mobDiscTotal, cnt);
         return { netDisc, tvDisc: 0, mobDiscTotal, perLine };
       }
 
@@ -1201,11 +1224,14 @@ function getWifiKey() {
 
 function wifiFeeOf(carrier, speed, key) {
   if (carrier === 'KT') return (KT_WIFI[key] || KT_WIFI.none).fee(speed);
+  // V6.8(감사 보고서): 스카이라이프는 100M만 와이파이 1,100원, 200M 이상 무료 — 상품가에 포함된 비용이라 선택과 무관하게 반영
+  if (carrier === '스카이라이프') return speed === 100 ? 1100 : 0;
   return key === 'home' ? 1100 : 0;
 }
 
 function wifiLabelOf(carrier, key) {
   if (carrier === 'KT') return (KT_WIFI[key] || KT_WIFI.none).label;
+  if (carrier === '스카이라이프') return '와이파이 포함 (100M 1,100원 · 200M 이상 무료)';
   return key === 'home' ? '와이파이 추가 임대' : '와이파이 미신청';
 }
 
@@ -1225,6 +1251,12 @@ function renderWifiSelect() {
     sel.value = keys.indexOf(cur) >= 0 ? cur : 'none';
     if (lbl) lbl.textContent = '와이파이 선택 · KT';
     if (note) note.classList.remove('hide');
+  } else if (state.carrier === '스카이라이프') {
+    // V6.8: 100M는 와이파이 1,100원 포함, 200M 이상 무료 → 별도 선택 없이 상품가에 반영
+    sel.innerHTML = `<option value="none">기본 포함 (100M 1,100원 · 200M 이상 무료)</option>`;
+    sel.value = 'none';
+    if (lbl) lbl.textContent = '와이파이 임대료 · 스카이라이프';
+    if (note) note.classList.add('hide');
   } else {
     sel.innerHTML = `<option value="none">기본 포함 / 미신청 (0원)</option><option value="home">추가 임대 (월 1,100원)</option>`;
     sel.value = (cur === 'home') ? 'home' : 'none';
@@ -1486,8 +1518,9 @@ function calcAutoInstallFee(carrier, hasTv, extraTvCnt, tvLabel) {
     if (!hasTv) { base = 36300; desc = 'LG U+ 인터넷 단독'; }
     else { base = 56100 + (extraTvCnt * 22000); desc = tvTotalCnt === 1 ? 'LG U+ 인터넷+TV 동시' : `LG U+ 인터넷+TV ${tvTotalCnt}대`; }
   } else if (carrier === '스카이라이프') {
-    if (!hasTv) { base = 36300; desc = '스카이라이프 인터넷 단독'; }
-    else if ((tvLabel || '').includes('All')) { base = 36300 + (extraTvCnt * 15400); desc = `스카이라이프 All ${tvTotalCnt}대`; }
+    // V6.8(감사 보고서): 인터넷 단독 36,000(주말 45,000) / 인터넷+IPTV 동시 48,500(주말·야간에도 할증 없음) / All 동반 시 인터넷 요금만
+    if (!hasTv) { base = 36000; desc = '스카이라이프 인터넷 단독'; }
+    else if ((tvLabel || '').includes('All')) { base = 36000 + (extraTvCnt * 15400); desc = `스카이라이프 All ${tvTotalCnt}대`; }
     else { base = 48500 + (extraTvCnt * 15400); desc = `스카이라이프 IPTV ${tvTotalCnt}대`; }
   } else if (carrier === 'LG헬로') {
     if (!hasTv) { base = 22000; desc = 'LG헬로 인터넷 단독'; }
@@ -1496,8 +1529,10 @@ function calcAutoInstallFee(carrier, hasTv, extraTvCnt, tvLabel) {
     if (!hasTv) { base = 36300; desc = `${carrier} 인터넷 단독`; }
     else { base = 56100 + (extraTvCnt * 17600); desc = tvTotalCnt === 1 ? `${carrier} 인터넷+TV 동시` : `${carrier} 인터넷+TV ${tvTotalCnt}대`; }
   }
-  const finalAmt = weekend ? Math.round(base * 1.25) : base;
-  const timeTag = weekend ? '주말·야간 +25%' : '평일 주간';
+  // V6.8: 스카이라이프 인터넷+TV 동시 설치는 주말·야간에도 48,500원 고정(할증 없음)
+  const skyNoSurcharge = (carrier === '스카이라이프' && hasTv && !(tvLabel || '').includes('All'));
+  const finalAmt = (weekend && !skyNoSurcharge) ? Math.round(base * 1.25) : base;
+  const timeTag = skyNoSurcharge ? '주말·야간 동일' : (weekend ? '주말·야간 +25%' : '평일 주간');
   return { amt: finalAmt, text: `${desc} · ${timeTag} (${fmt(finalAmt)}원)` };
 }
 
@@ -1575,7 +1610,7 @@ function recalc() {
     if (tgt === undefined) tgt = 0;
     state.assignIdx = tgt;
     let r;
-    try { r = c.calcBundle(netObj.speed, tvObj.price > 0, validPlans, ratio, tvObj.price); }
+    try { r = c.calcBundle(netObj.speed, tvObj.price > 0, validPlans, ratio, tvObj.price, tvObj.label, netObj.price); }
     finally { state.assignIdx = savedAssign; }
     return { netDisc: r.netDisc, tvDisc: r.tvDisc, mobDiscTotal: r.mobDiscTotal,
              perLine: plansList.map((p, i) => (validPos[i] === undefined ? 0 : (r.perLine[validPos[i]] || 0))),
@@ -1590,11 +1625,14 @@ function recalc() {
   // 인터넷+TV 결합 할인 (유선결합) — 인터넷과 TV를 함께 쓰면 인터넷 요금에서 추가 할인
   const tvOn = netObj.speed > 0 && tvObj.price > 0;
   const tvRatio = (state.carrier === 'KT' && years !== 3) ? 0 : ratio;   // KT는 3년 약정만 공식 게시
-  const tvBundleDisc = tvOn ? Math.round(((TV_BUNDLE_DISC[state.carrier] || {})[netObj.speed] || 0) * tvRatio) : 0;
+  // V6.8: 스카이라이프 홈결합(요금할인형)은 베이직·플러스만 — All·초이스에는 적용하지 않는다.
+  const tvBundleEligible = state.carrier !== '스카이라이프' || /베이직|플러스/.test(String(tvObj.label || ''));
+  const tvBundleDisc = (tvOn && tvBundleEligible) ? Math.round(((TV_BUNDLE_DISC[state.carrier] || {})[netObj.speed] || 0) * tvRatio) : 0;
   const mobileNetDisc = bRes.netDisc || 0;
   // V6.5e(사용자 추가 지시): KT·LG U+는 유심결합 인터넷 할인과 인터넷·TV 결합 할인을 각각 차감한다.
   //  SKB·SKT는 약관상 중복 불가 → 큰 쪽 하나만(Math.max) 유지. 스카이라이프·LG헬로비전도 기존(max) 유지.
-  const canStackWiredDisc = (state.carrier === 'KT' || state.carrier === 'LG U+');   // V6.6: KT·LG U+만 공식 약관상 2중 적용, SKB·SKT는 큰 쪽 하나만
+  // V6.8: LG헬로비전도 TV 결합(헬로tv)과 유무선 결합을 합산한다(공식 결합표: 1G 18,040 = TV결합가 24,200 − 6,160).
+  const canStackWiredDisc = (state.carrier === 'KT' || state.carrier === 'LG U+' || state.carrier === 'LG헬로');   // V6.6: KT·LG U+ 2중 / V6.8: LG헬로 합산 / SKB·SKT는 큰 쪽 하나만
   const netDiscFinal = canStackWiredDisc ? (mobileNetDisc + tvBundleDisc) : Math.max(mobileNetDisc, tvBundleDisc);
 
   // 유선 복지 감면 (기초연금 제외, 유선 결합과 중복 불가 -> 더 큰 쪽 적용)
@@ -1987,6 +2025,23 @@ function escQuoteHtml(s) {
   return String(s || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
 }
 
+// V6.8: 상품 목록이 바뀌어도(비공식 B tv 정리·스카이라이프 1G 추가 등) 옛 견적이 엉뚱한 상품으로 복원되지 않도록
+//  저장할 때 상품명을 함께 남기고, 불러올 때 상품명을 먼저 찾는다.
+function optTextOf(id) {
+  const el = document.getElementById(id);
+  if (!el || el.selectedIndex < 0 || !el.options[el.selectedIndex]) return '';
+  return el.options[el.selectedIndex].textContent;
+}
+
+function optValueByLabel(id, label, fallbackValue) {
+  const el = document.getElementById(id);
+  if (!el) return fallbackValue;
+  const opts = [...el.options];
+  if (label) { const hit = opts.find(o => o.textContent === label); if (hit) return hit.value; }
+  const v = (fallbackValue == null) ? '' : String(fallbackValue);
+  return opts.some(o => o.value === v) ? v : null;   // null = 저장 당시 상품이 지금 목록에 없음
+}
+
 function saveQuoteItem() {
   const inp = document.getElementById('quoteTitleInp');
   const lr = state.lastResult || { carrier: state.carrier, usimCount: state.usim.length, totalMonthly: 0, realMonthly: 0 };
@@ -2000,7 +2055,9 @@ function saveQuoteItem() {
     carrier: state.carrier,
     termYears: document.getElementById('termYears').value,
     netIdx: document.getElementById('netSelect').value,
+    netLabel: optTextOf('netSelect'),
     tvIdx: document.getElementById('tvSelect').value,
+    tvLabel: optTextOf('tvSelect'),
     giftAmt: document.getElementById('giftAmt').value,
     ktMode: (document.getElementById('ktMode') || {}).value || 'contrib',
     skMode: (document.getElementById('skMode') || {}).value || 'equal',
@@ -2008,8 +2065,8 @@ function saveQuoteItem() {
     helloMode: (document.getElementById('helloMode') || {}).value || 'uplus',
     skyDouble: (document.getElementById('skyDouble') || {}).value || '0',
     wifi: document.getElementById('wifiSelect').value,
-    extraTv: document.getElementById('extraTvSelect').value, extraTvCount: (document.getElementById('extraTvCount') || {}).value || '1',
-    settop: document.getElementById('settopSelect').value,
+    extraTv: document.getElementById('extraTvSelect').value, extraTvLabel: optTextOf('extraTvSelect'), extraTvCount: (document.getElementById('extraTvCount') || {}).value || '1',
+    settop: document.getElementById('settopSelect').value, settopLabel: optTextOf('settopSelect'),
     installWeekend: (document.getElementById('installWeekendChk') || {}).checked || false, installExempt: (document.getElementById('installExemptChk') || {}).checked || false,
     welfareType: document.getElementById('welfareType').value,
     affDisc: state.affDisc,
@@ -2059,8 +2116,14 @@ function loadQuoteItem(idx) {
   if (!q) return;
   selectCarrier(q.carrier);
   document.getElementById('termYears').value = '3';   // V6.6: 옛 견적도 3년 약정 고정
-  document.getElementById('netSelect').value = q.netIdx;
-  document.getElementById('tvSelect').value = q.tvIdx;
+  const lostProducts = [];
+  const setSavedSel = (id, label, idx, fallback) => {
+    const v = optValueByLabel(id, label, idx);
+    if (v === null) { lostProducts.push(id); document.getElementById(id).value = fallback; }
+    else document.getElementById(id).value = v;
+  };
+  setSavedSel('netSelect', q.netLabel, q.netIdx, '-1');
+  setSavedSel('tvSelect', q.tvLabel, q.tvIdx, '0');
   document.getElementById('giftAmt').value = q.giftAmt;
   if (document.getElementById('ktMode')) document.getElementById('ktMode').value = q.ktMode;
   if (document.getElementById('skMode')) document.getElementById('skMode').value = q.skMode;
@@ -2074,10 +2137,12 @@ function loadQuoteItem(idx) {
   const wv = ({ '0': 'none', '1100': 'home' })[q.wifi] || q.wifi || 'none';
   const wSelEl = document.getElementById('wifiSelect');
   wSelEl.value = [...wSelEl.options].some(o => o.value === wv) ? wv : 'none';
-  document.getElementById('extraTvSelect').value = q.extraTv; if (document.getElementById('extraTvCount') && q.extraTvCount) document.getElementById('extraTvCount').value = q.extraTvCount;
+  const exv = optValueByLabel('extraTvSelect', q.extraTvLabel, q.extraTv);
+  document.getElementById('extraTvSelect').value = (exv === null) ? '0' : exv;
+  if (document.getElementById('extraTvCount') && q.extraTvCount) document.getElementById('extraTvCount').value = q.extraTvCount;
   const stSelEl = document.getElementById('settopSelect');
-  const stv = String(q.settop == null ? '0' : q.settop);
-  stSelEl.value = [...stSelEl.options].some(o => o.value === stv) ? stv : '0';
+  const stv = optValueByLabel('settopSelect', q.settopLabel, q.settop == null ? '0' : q.settop);
+  stSelEl.value = (stv === null) ? '0' : stv;
   if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = !!q.installWeekend; if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = !!q.installExempt;
   document.getElementById('welfareType').value = q.welfareType;
   state.affDisc = q.affDisc || 0;
@@ -2091,6 +2156,9 @@ function loadQuoteItem(idx) {
   recalc();
   closeQuoteModal();
   showToast(`'${q.title}' 상담내역을 불러왔습니다!`);
+  if (lostProducts.length) {
+    setTimeout(() => showToast('저장 당시 상품이 2026년 요금표에서 바뀌어 미선택으로 복원했습니다. 상품을 다시 골라 주세요.'), 2500);
+  }
 }
 
 function sendQuoteToCrm() {
