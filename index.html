@@ -74,6 +74,27 @@
   .card-info-row:last-child { border-bottom: none; }
   .card-info-name { font-size: 13.5px; font-weight: 800; color: #111827; }
   .card-info-desc { font-size: 12px; color: #4B5563; margin-top: 3px; line-height: 1.45; }
+  .kt-fam-tbl { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .kt-fam-tbl th { background: #F5F3FF; color: #5B21B6; font-weight: 800; padding: 3px 5px; text-align: right; border-bottom: 1px solid #E4DAFB; white-space: nowrap; }
+  .kt-fam-tbl th:first-child { text-align: left; }
+  .kt-fam-tbl td { padding: 3px 5px; text-align: right; color: #1F2937; border-bottom: 1px solid #F1F5F9; white-space: nowrap; }
+  .kt-fam-tbl td:first-child { text-align: left; font-weight: 800; color: #475569; }
+  .kt-fam-tbl tr:last-child td { border-bottom: none; }
+  .kt-fam-tbl b { color: #6D28D9; }
+  .kt-fam-tbl.mini { font-size: 10.5px; margin-top: 3px; }
+  .kt-fam-tbl.mini th, .kt-fam-tbl.mini td { padding: 2px 4px; }
+  @media (max-width: 380px) {
+    .kt-fam-tbl { font-size: 10.5px; }
+    .kt-fam-tbl th, .kt-fam-tbl td { padding: 2px 4px; }
+    .kt-fam-tbl.mini { font-size: 9.8px; }
+  }
+  @media (max-width: 335px) {
+    .kt-fam-tbl { font-size: 9.8px; }
+    .kt-fam-tbl.mini { font-size: 9.2px; }
+  }
+  .kt-fam-note { margin-top: 4px; font-size: 11px; line-height: 1.4; color: #92400E; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; padding: 4px 6px; word-break: keep-all; }
+  .kt-fam-note b { color: #B45309; }
+  .kt-fam-note .kt-fam-sub { display: block; font-size: 10.5px; color: #A16207; }
 
   .bottom-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; background: #fff; border-top: 1px solid #E5E7EB; padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; z-index: 20; }
   .btn-sub { padding: 12px; border-radius: 12px; border: 1.5px solid #03C75A; background: #E8FBF0; color: #009A3E; font-size: 13px; font-weight: 800; text-align: center; cursor: pointer; }
@@ -93,7 +114,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V6.0</div>
+      <div class="ver-pill">제작자 손영곤 V6.1</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -126,6 +147,7 @@
             </div>
           </div>
           <div style="font-size:13px;color:#059669;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredDiscDetail"></div>
+          <div style="font-size:12px;color:#64748B;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredParts"></div>
           <div style="font-size:12.5px;color:#475569;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredSub"></div>
         </div>
         <div id="sumUsimLines" style="display:flex;flex-direction:column;gap:9px;"></div>
@@ -205,18 +227,22 @@
           <option value="0.2">TV 요금 20% 더블할인</option>
         </select>
       </div>
+      <div id="wifiFieldWrap">
+        <div class="field-lbl" id="wifiFieldLbl">와이파이(공유기) 임대료</div>
+        <select class="sel" id="wifiSelect" onchange="recalc()">
+          <option value="none">기본 포함 / 미신청 (0원)</option>
+          <option value="home">추가 임대 (월 1,100원)</option>
+        </select>
+        <div id="ktWifiNote" class="hide" style="margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;color:#5B21B6;line-height:1.45;"></div>
+      </div>
       <div class="grid2">
         <div>
-          <div class="field-lbl">와이파이(공유기) 임대료</div>
-          <select class="sel" id="wifiSelect" onchange="recalc()">
-            <option value="0">기본 포함 / 미신청 (0원)</option>
-            <option value="1100">추가 임대 (월 1,100원)</option>
-          </select>
+          <div class="field-lbl">추가 TV 상품 (2·3대째)</div>
+          <select class="sel" id="extraTvSelect" onchange="recalc()"></select>
         </div>
         <div>
-          <div class="field-lbl">추가 TV (2·3대째)</div>
-          <select class="sel" id="extraTvSelect" onchange="recalc()"></select>
-          <select class="sel" id="extraTvCount" style="margin-top:6px;" onchange="recalc()">
+          <div class="field-lbl">추가 TV 대수</div>
+          <select class="sel" id="extraTvCount" onchange="recalc()">
             <option value="1">1대 추가 (총 2대)</option>
             <option value="2">2대 추가 (총 3대)</option>
           </select>
@@ -384,8 +410,15 @@
       <div class="card-info-row">
         <div class="card-thumb-wrap"><img src="cards/kt_shinhan_family.png" alt="KT 가족만족 DC 신한카드" loading="lazy"></div>
         <div class="card-info-body">
-          <div class="card-info-name">KT 가족만족 DC 신한카드 (연회비 1.5만~1.8만)</div>
-          <div class="card-info-desc">30만↑ 월 최대 <b>22,000원</b> / 70만↑ <b>27,000원</b> (36개월, 본인+가족 합산)</div>
+          <div class="card-info-name">KT 가족만족 DC 신한카드 <span style="white-space:nowrap">(연회비 1.5만~1.8만)</span></div>
+          <div class="card-info-desc">
+            <table class="kt-fam-tbl">
+              <tr><th>전월실적</th><th>본인</th><th>가족카드 10만↑</th></tr>
+              <tr><td>30만↑</td><td><b>19,000원</b></td><td><b>22,000원</b></td></tr>
+              <tr><td>70만↑</td><td><b>24,000원</b></td><td><b>27,000원</b></td></tr>
+            </table>
+            <div class="kt-fam-note"><b>프로모션 36개월</b> · 직전 6개월 무실적<br>Master(해외겸용) 자동이체 시<span class="kt-fam-sub">미충족 시 기본 7,000원(30만) · 15,000원(70만)</span></div>
+          </div>
           <div style="font-size:12px;font-weight:800;color:#059669;margin-top:3px;">전월실적 인정: 관리비 ✅ (포함) · 통신비 ✅ (포함)</div>
         </div>
       </div>
@@ -1005,7 +1038,7 @@ function clearAllToZero() {
   document.querySelectorAll('#affChips .chip').forEach((b, i) => b.classList.toggle('on', i === 0));
   if (document.getElementById('termYears')) document.getElementById('termYears').value = '3';
   if (document.getElementById('giftAmt')) document.getElementById('giftAmt').value = '0';
-  if (document.getElementById('wifiSelect')) document.getElementById('wifiSelect').value = '0';
+  if (document.getElementById('wifiSelect')) document.getElementById('wifiSelect').value = 'none';
   if (document.getElementById('extraTvSelect')) document.getElementById('extraTvSelect').selectedIndex = 0;
   if (document.getElementById('extraTvCount')) document.getElementById('extraTvCount').value = '1';
   if (document.getElementById('settopSelect')) document.getElementById('settopSelect').selectedIndex = 0;
@@ -1075,6 +1108,92 @@ function populateSelects() {
   if (settopSel && c.settops) settopSel.innerHTML = c.settops.map((s, i) => `<option value="${i}" ${i===0?'selected':''}>${s.label}</option>`).join('');
   const exSel = document.getElementById('extraTvSelect');
   if (exSel && c.extraTvs) exSel.innerHTML = c.extraTvs.map((x, i) => `<option value="${x.price}" ${i===0?'selected':''}>${x.label}</option>`).join('');
+  renderWifiSelect();
+}
+
+/* ── 공유기(와이파이) 선택 ──────────────────────────────────────
+   KT 2026년 공식 요금(3년 약정·부가세 포함, 신규 가입 기준)
+   · 인터넷 단독 : 슬림 100M 22,000 / 베이직 500M 33,000 / 에센스 1G 38,500
+   · 인터넷 와이파이(기본 7D) : 24,200 / 35,200 / 39,600
+   · GiGA WiFi home으로 바꾸면 1,100원 인하 (1G는 0원)
+   → 공유기 추가분 : 100M·500M home +1,100 · 7D +2,200 / 1G home +0 · 7D +1,100
+   · KT WiFi 7D Plus(공유기 1대 추가) 3년 월 2,750원 */
+const KT_WIFI = {
+  none:     { label: '공유기 미신청',                 fee: s => 0 },
+  home:     { label: 'GiGA WiFi home ax (WiFi 6)',    fee: s => (s >= 1000 ? 0 : 1100) },
+  '7d':     { label: 'KT WiFi 7D (WiFi 7 · 추천)',   fee: s => (s >= 1000 ? 1100 : 2200) },
+  '7dplus': { label: 'KT WiFi 7D 2대 (7D Plus)',      fee: s => (s >= 1000 ? 1100 : 2200) + 2750 }
+};
+
+function getNetSpeed() {
+  const c = CARRIERS[state.carrier];
+  const el = document.getElementById('netSelect');
+  const i = parseInt((el || {}).value, 10);
+  if (!el || i === -1 || isNaN(i)) return 0;
+  return ((c.nets[i] || {}).speed) || 0;
+}
+
+function getWifiKey() {
+  const el = document.getElementById('wifiSelect');
+  let v = (el || {}).value || 'none';
+  if (v === '0') v = 'none';
+  if (v === '1100') v = 'home';
+  return v;
+}
+
+function wifiFeeOf(carrier, speed, key) {
+  if (carrier === 'KT') return (KT_WIFI[key] || KT_WIFI.none).fee(speed);
+  return key === 'home' ? 1100 : 0;
+}
+
+function wifiLabelOf(carrier, key) {
+  if (carrier === 'KT') return (KT_WIFI[key] || KT_WIFI.none).label;
+  return key === 'home' ? '와이파이 공유기 추가 임대' : '공유기 미신청';
+}
+
+function renderWifiSelect() {
+  const sel = document.getElementById('wifiSelect');
+  if (!sel) return;
+  const cur = getWifiKey();
+  const lbl = document.getElementById('wifiFieldLbl');
+  const note = document.getElementById('ktWifiNote');
+  if (state.carrier === 'KT') {
+    const speed = getNetSpeed();
+    const keys = speed === 0 ? ['none'] : Object.keys(KT_WIFI);
+    sel.innerHTML = keys.map(k => {
+      const fee = KT_WIFI[k].fee(speed);
+      return `<option value="${k}">${KT_WIFI[k].label}${speed === 0 ? '' : ` (${fee > 0 ? fmt(fee) + '원' : '0원'})`}</option>`;
+    }).join('');
+    sel.value = keys.indexOf(cur) >= 0 ? cur : 'none';
+    if (lbl) lbl.textContent = '공유기(와이파이) 선택 · KT';
+    if (note) note.classList.remove('hide');
+  } else {
+    sel.innerHTML = `<option value="none">기본 포함 / 미신청 (0원)</option><option value="home">추가 임대 (월 1,100원)</option>`;
+    sel.value = (cur === 'home') ? 'home' : 'none';
+    if (lbl) lbl.textContent = '와이파이(공유기) 임대료';
+    if (note) note.classList.add('hide');
+  }
+}
+
+function updateKtWifiNote(netObj, key, fee) {
+  const note = document.getElementById('ktWifiNote');
+  if (!note) return;
+  if (state.carrier !== 'KT') { note.classList.add('hide'); return; }
+  note.classList.remove('hide');
+  const speed = netObj.speed || 0;
+  if (speed === 0) {
+    note.innerHTML = '인터넷을 먼저 선택하면 공유기 임대료까지 함께 계산됩니다.';
+    return;
+  }
+  if (key === 'none') {
+    note.innerHTML = `인터넷 단독 ${fmt(netObj.price)}원 · 7D 선택 시 <b>+${fmt(KT_WIFI['7d'].fee(speed))}원</b>`;
+    return;
+  }
+  const base7d = KT_WIFI['7d'].fee(speed);
+  const detail = key === '7dplus'
+    ? `<br><span style="font-size:10.5px;font-weight:700;color:#6D28D9;">7D ${fmt(base7d)}원 + 추가1대 2,750원 · 3년 약정·부가세 포함</span>`
+    : `<br><span style="font-size:10.5px;font-weight:700;color:#6D28D9;">2026년 KT 공식 3년 약정·부가세 포함 (신규 가입)</span>`;
+  note.innerHTML = `인터넷 ${fmt(netObj.price)}원 + 공유기 ${fmt(fee)}원 = <b>${fmt(netObj.price + fee)}원</b>${detail}`;
 }
 
 function canAssignMode() {
@@ -1215,7 +1334,7 @@ const AFF_CARDS_BY_CARRIER = {
     { name: 'T-economy KB국민카드', img: 'cards/skt_kb_teconomy.png', tiers: [15000, 24000], desc: '20만↑ 10,000원 / 30만↑ 12,000원 / 70만↑ 17,000원', perf: '관리비 ❌ · 통신비 ❌', ok: false }
   ],
   KT: [
-    { name: 'KT 가족만족 DC 신한카드', img: 'cards/kt_shinhan_family.png', tiers: [15000, 24000], desc: '30만↑ 월 최대 22,000원 / 70만↑ 27,000원 (36개월, 가족 합산)', perf: '관리비 ✅ · 통신비 ✅', ok: true },
+    { name: 'KT 가족만족 DC 신한카드', img: 'cards/kt_shinhan_family.png', tiers: [24000], desc: '<table class="kt-fam-tbl mini"><tr><th>전월실적</th><th>본인</th><th>가족카드 10만↑</th></tr><tr><td>30만↑</td><td><b>19,000원</b></td><td><b>22,000원</b></td></tr><tr><td>70만↑</td><td><b>24,000원</b></td><td><b>27,000원</b></td></tr></table><div class="kt-fam-note"><b>프로모션 36개월</b> · 직전 6개월 무실적<br>Master(해외겸용) 자동이체 시<span class="kt-fam-sub">미충족 시 기본 7,000원(30만) · 15,000원(70만)</span></div>', perf: '관리비 ✅ · 통신비 ✅', ok: true },
     { name: 'KT 삼성카드', img: 'cards/kt_samsung.png', tiers: [15000, 24000], desc: '30만↑ 월 최대 23,000원 / 70만↑ 24,000원 / 120만↑ 25,000원', perf: '관리비 ❌(건수만) · 통신비 ✅', ok: true },
     { name: 'KT 36 Plus 우리카드', img: 'cards/kt_woori_36plus.png', tiers: [24000, 34000], desc: '40만↑ 24,000원 / 80만↑ 29,000원 / 120만↑ 31,000원 (36개월)', perf: '관리비 ❌ · 통신비 ✅', ok: true },
     { name: 'KT 으랏차차 신한카드', img: 'cards/kt_shinhan_eura.png', tiers: [24000, 34000, 35000], desc: '50만↑ 월 최대 28,000원 / 200만↑ 58,000원 (36개월)', perf: '관리비 ❌ · 통신비 ✅', ok: true },
@@ -1332,7 +1451,10 @@ function recalc() {
   const netIdxVal = parseInt(document.getElementById('netSelect').value, 10);
   const netObj = netIdxVal === -1 ? { label: '선택 안함 (0원)', price: 0, speed: 0 } : (c.nets[netIdxVal] || c.nets[0]);
   const tvObj = c.tvs[parseInt(document.getElementById('tvSelect').value, 10)] || c.tvs[0];
-  const wifi = parseInt(document.getElementById('wifiSelect').value, 10) || 0;
+  renderWifiSelect();
+  const wifiKey = getWifiKey();
+  const wifi = wifiFeeOf(state.carrier, netObj.speed, wifiKey);
+  updateKtWifiNote(netObj, wifiKey, wifi);
   const extraTvUnit = parseInt(document.getElementById('extraTvSelect').value, 10) || 0;
   const exCntEl = document.getElementById('extraTvCount');
   if (exCntEl) exCntEl.disabled = (extraTvUnit === 0);
@@ -1451,6 +1573,16 @@ function recalc() {
   if (wDiscEl) wDiscEl.textContent = finalWiredDisc > 0 ? `-${fmt(finalWiredDisc)}원` : '';
   const wSubEl = document.getElementById('sumWiredSub');
   if (wSubEl) wSubEl.textContent = `공급가 ${fmt(wiredSupply)} + 부가세 ${fmt(wiredVat)}`;
+  const wPartsEl = document.getElementById('sumWiredParts');
+  if (wPartsEl) {
+    const comp = [];
+    if (netObj.price > 0) comp.push(`인터넷 ${fmt(netObj.price)}`);
+    if (tvObj.price > 0) comp.push(`TV ${fmt(tvObj.price)}`);
+    if (wifi > 0) comp.push(`공유기 ${fmt(wifi)}`);
+    if (settopAdd > 0) comp.push(`셋톱 ${fmt(settopAdd)}`);
+    if (extraTv > 0) comp.push(`추가TV ${fmt(extraTv)}`);
+    wPartsEl.textContent = comp.join(' + ');
+  }
 
   const wcOrig = document.getElementById('wiredCardOrig');
   const wcDisc = document.getElementById('wiredCardDisc');
@@ -1490,6 +1622,7 @@ function recalc() {
 
   state.lastResult = {
     carrier: c.name, years, netLabel: netObj.label, tvLabel: (tvObj.price > 0 ? `${tvObj.label} + ${settopObj.label}` : tvObj.label) + (extraTv > 0 ? ` (+추가TV ${extraTvCnt}대 ${fmt(extraTv)}원)` : ''),
+    wifiLabel: wifiLabelOf(state.carrier, wifiKey), wifiFee: wifi,
     wiredFinal, usimCount: state.usim.length, usimFinalSum, affDisc: state.affDisc,
     welfareMobTotal, welfareWiredDisc: useWelfareWired ? welfareWiredDisc : 0, installFee,
     totalMonthly, gift, realMonthly, totalDisc
@@ -1525,6 +1658,7 @@ function copyKakaoText() {
     `■ 통신사: ${r.carrier} (${r.years}년 약정)`,
     `■ 인터넷: ${r.netLabel}`,
     `■ TV: ${r.tvLabel}`,
+    `■ 공유기: ${r.wifiFee > 0 ? `${r.wifiLabel} (월 ${fmt(r.wifiFee)}원)` : '미신청'}`,
     `■ 유심 결합: ${r.usimCount}회선 (선택약정 25%+결합 적용)`,
     (r.welfareMobTotal > 0 || r.welfareWiredDisc > 0) ? `■ 복지 감면: 월 -${fmt(r.welfareMobTotal + r.welfareWiredDisc)}원` : null,
     r.affDisc > 0 ? `■ 제휴카드 할인: 월 -${fmt(r.affDisc)}원` : null,
@@ -1578,6 +1712,7 @@ function downloadGuideImage() {
     ['통신사', `${r.carrier} (${r.years}년 약정)`],
     ['인터넷', r.netLabel],
     ['TV 상품', r.tvLabel],
+    ['공유기', r.wifiFee > 0 ? `${String(r.wifiLabel || '').replace(/\s*\([^)]*\)/g, '')} 월 ${fmt(r.wifiFee)}원` : '미신청'],
     ['유심 결합', `${r.usimCount}회선 (선택약정 25% + 결합)`],
     ['제휴카드 할인', r.affDisc > 0 ? `월 -${fmt(r.affDisc)}원` : '미적용'],
     ['총 월 할인액', `-${fmt(r.totalDisc)}원`],
@@ -1587,6 +1722,7 @@ function downloadGuideImage() {
   ];
 
   let y = 270;
+  const rowStep = rows.length >= 10 ? 76 : 84;
   rows.forEach(([k, v], i) => {
     ctx.fillStyle = i >= 6 ? '#009A3E' : '#111827';
     ctx.font = i >= 6 ? 'bold 30px sans-serif' : 'bold 26px sans-serif';
@@ -1600,7 +1736,7 @@ function downloadGuideImage() {
     ctx.moveTo(80, y + 26);
     ctx.lineTo(820, y + 26);
     ctx.stroke();
-    y += 84;
+    y += rowStep;
   });
 
   const a = document.createElement('a');
@@ -1726,7 +1862,10 @@ function loadQuoteItem(idx) {
     onHelloModeChange();
   }
   if (document.getElementById('skyDouble')) document.getElementById('skyDouble').value = q.skyDouble;
-  document.getElementById('wifiSelect').value = q.wifi;
+  renderWifiSelect();
+  const wv = ({ '0': 'none', '1100': 'home' })[q.wifi] || q.wifi || 'none';
+  const wSelEl = document.getElementById('wifiSelect');
+  wSelEl.value = [...wSelEl.options].some(o => o.value === wv) ? wv : 'none';
   document.getElementById('extraTvSelect').value = q.extraTv; if (document.getElementById('extraTvCount') && q.extraTvCount) document.getElementById('extraTvCount').value = q.extraTvCount;
   document.getElementById('settopSelect').value = q.settop;
   if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = !!q.installWeekend; if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = !!q.installExempt;
@@ -1765,8 +1904,9 @@ function sendQuoteToCrm() {
   if (hasTv && lr.tvLabel && !lr.tvLabel.includes('미가입')) parts.push(cleanLbl(lr.tvLabel));
   const planName = parts.join(' + ') || (hasUsim ? `유심 ${state.usim.length}회선` : '');
 
-  const wifiVal = document.getElementById('wifiSelect').value;
-  const ap = wifiVal === '1' ? '신청' : '미신청';
+  const wifiKeyVal = getWifiKey();
+  const wifiFeeVal = wifiFeeOf(state.carrier, getNetSpeed(), wifiKeyVal);
+  const ap = wifiFeeVal > 0 ? '신청' : '미신청';
   const activePlans = getActivePlans();
   const sims = state.usim.slice(0, 4).map(u => {
     const p = activePlans[u.planIdx] || activePlans[0] || { name: '' };
@@ -1781,6 +1921,7 @@ function sendQuoteToCrm() {
   ];
   if (lr.gift > 0) memoLines.push(`현금지원 ${fmt(lr.gift)}원 (실 체감 월 ${fmt(lr.realMonthly)}원)`);
   if (lr.affDisc > 0) memoLines.push(`제휴카드 추가할인 -${fmt(lr.affDisc)}원`);
+  if (wifiFeeVal > 0) memoLines.push(`공유기 ${wifiLabelOf(state.carrier, wifiKeyVal)} 월 ${fmt(wifiFeeVal)}원`);
 
   const payload = {
     carrier: crmCarrier,
