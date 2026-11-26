@@ -1866,7 +1866,9 @@ function loadQuoteItem(idx) {
   const wSelEl = document.getElementById('wifiSelect');
   wSelEl.value = [...wSelEl.options].some(o => o.value === wv) ? wv : 'none';
   document.getElementById('extraTvSelect').value = q.extraTv; if (document.getElementById('extraTvCount') && q.extraTvCount) document.getElementById('extraTvCount').value = q.extraTvCount;
-  document.getElementById('settopSelect').value = q.settop;
+  const stSelEl = document.getElementById('settopSelect');
+  const stv = String(q.settop == null ? '0' : q.settop);
+  stSelEl.value = [...stSelEl.options].some(o => o.value === stv) ? stv : '0';
   if (document.getElementById('installWeekendChk')) document.getElementById('installWeekendChk').checked = !!q.installWeekend; if (document.getElementById('installExemptChk')) document.getElementById('installExemptChk').checked = !!q.installExempt;
   document.getElementById('welfareType').value = q.welfareType;
   state.affDisc = q.affDisc || 0;
