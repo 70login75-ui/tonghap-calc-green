@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V6.3</div>
+      <div class="ver-pill">제작자 손영곤 V6.4</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -584,6 +584,15 @@
   <canvas id="guideCanvas" width="900" height="1120" style="display:none;"></canvas>
 
 <script>
+// 인터넷+TV 결합 시 인터넷 요금 할인 (3년 약정, 부가세 포함) — 2026-11-26 공식 요금표
+// 100M는 SKB·SKT만 -2,200 / KT·LG U+는 0 (변동 없음). KT는 TV 결합 요금이 3년 약정만 공식 게시.
+const TV_BUNDLE_DISC = {
+  'SKB':   { 100: 2200, 500: 5500, 1000: 5500 },
+  'SKT':   { 100: 2200, 500: 5500, 1000: 5500 },
+  'KT':    { 100: 0,    500: 5500, 1000: 5500 },
+  'LG U+': { 100: 0,    500: 5500, 1000: 5500 }
+};
+
 const CARRIERS = {
   'SKB': {
     name: 'SK브로드밴드',
@@ -1475,6 +1484,14 @@ function recalc() {
   const plansList = state.usim.map(u => { const base = u.planIdx === -1 ? { label: `직접입력 (${fmt(u.customPrice || 0)}원)`, price: (u.customPrice || 0) } : (plans[u.planIdx] || plans[0]); return Object.assign({}, base, { sel25: !!u.sel25 }); });
   const bRes = netObj.speed === 0 ? { netDisc: 0, tvDisc: 0, mobDiscTotal: 0, perLine: plansList.map(() => 0), note: '' } : c.calcBundle(netObj.speed, tvObj.price > 0, plansList, ratio, tvObj.price);
 
+  // 인터넷+TV 결합 할인 (유선결합) — 인터넷과 TV를 함께 쓰면 인터넷 요금에서 추가 할인
+  const tvOn = netObj.speed > 0 && tvObj.price > 0;
+  const tvRatio = (state.carrier === 'KT' && years !== 3) ? 0 : ratio;   // KT는 3년 약정만 공식 게시
+  const tvBundleDisc = tvOn ? Math.round(((TV_BUNDLE_DISC[state.carrier] || {})[netObj.speed] || 0) * tvRatio) : 0;
+  const mobileNetDisc = bRes.netDisc || 0;
+  const tvStack = (state.carrier === 'KT' || state.carrier === 'LG U+');  // KT·LG U+는 합산, SKB·SKT는 중복 불가(큰 쪽만)
+  const netDiscFinal = tvStack ? (mobileNetDisc + tvBundleDisc) : Math.max(mobileNetDisc, tvBundleDisc);
+
   // 유선 복지 감면 (기초연금 제외, 유선 결합과 중복 불가 -> 더 큰 쪽 적용)
   let wNetDisc = 0, wTvDisc = 0;
   if (wType !== 'none' && wType !== 'pension') {
@@ -1482,7 +1499,7 @@ function recalc() {
     wNetDisc = Math.round(netObj.price * (isUplus ? 0.43 : 0.30));
     wTvDisc = (isUplus && tvObj.price > 0) ? Math.round(tvObj.price * 0.30) : 0;
   }
-  const bundleWiredDisc = bRes.netDisc + bRes.tvDisc;
+  const bundleWiredDisc = netDiscFinal + (bRes.tvDisc || 0);
   const welfareWiredDisc = wNetDisc + wTvDisc;
   const useWelfareWired = welfareWiredDisc > bundleWiredDisc;
   const finalWiredDisc = Math.max(bundleWiredDisc, welfareWiredDisc);
@@ -1558,7 +1575,10 @@ function recalc() {
   if (useWelfareWired) {
     if (welfareWiredDisc > 0) wParts.push(`복지 -${fmt(welfareWiredDisc)}`);
   } else {
-    if ((bRes.netDisc || 0) > 0) wParts.push(`인터넷 -${fmt(bRes.netDisc)}`);
+    const netD = bRes.netDisc || 0;
+    if (netD > 0) wParts.push(`인터넷 -${fmt(netD)}`);
+    // KT·LG U+는 유무선결합 + 인터넷·TV 결합 합산, SKB·SKT는 큰 쪽만 적용되므로 TV 결합이 클 때만 따로 표기
+    if (tvBundleDisc > 0 && (tvStack || tvBundleDisc > netD)) wParts.push(`인터넷·TV 결합 -${fmt(tvBundleDisc)}`);
     if ((bRes.tvDisc || 0) > 0) wParts.push(`TV -${fmt(bRes.tvDisc)}`);
   }
   const wDetailTxt = wParts.length ? wParts.join(' · ') : '적용된 할인 없음';
