@@ -115,7 +115,7 @@
           <div class="brand-sub">인터넷·TV·유심 요금·결합 계산기</div>
         </div>
       </div>
-      <div class="ver-pill">제작자 손영곤 V6.4</div>
+      <div class="ver-pill">제작자 손영곤 V6.5</div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('calc', this)">인터넷·TV·유심</button>
@@ -135,28 +135,51 @@
         <div>
           <div class="sum-label">결합 + 선택약정 적용 월 예상 청구 (부가세 포함)</div>
           <div class="sum-price" id="sumMonthly">0<span>원 / 월</span></div>
+          <div id="sumMonthlySplit" style="font-size:12.5px;color:#475569;font-weight:800;margin-top:3px;line-height:1.35;word-break:keep-all;"></div>
         </div>
         <button class="btn-sub" style="padding:6px 12px;font-size:12.5px;border-color:#EF4444;color:#DC2626;background:#FEF2F2;border-radius:10px;white-space:nowrap;" onclick="resetQuote()">견적 초기화</button>
       </div>
       <div id="sumDetailBox" style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:14px;padding:13px 13px;font-size:14.5px;line-height:1.45;color:#111827;">
         <div style="border-bottom:1px solid #E2E8F0;padding-bottom:10px;margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-            <div style="font-weight:900;font-size:15.5px;color:#0F172A;white-space:nowrap;" id="sumWiredTitle">인터넷·TV</div>
-            <div style="text-align:right;white-space:nowrap;flex-shrink:0;">
-              <span style="color:#DC2626;font-weight:900;font-size:15px;margin-right:5px;" id="sumWiredDisc"></span>
-              <span style="font-weight:900;font-size:17px;color:#009A3E;" id="sumWired">0원</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11.5px;color:#7C3AED;font-weight:900;letter-spacing:0.2px;">① 인터넷·TV 예상 금액</span>
+            <span id="sumWiredTermBadge" style="font-size:10px;font-weight:900;color:#6D28D9;background:#F3EEFF;border:1px solid #DDD6FE;border-radius:999px;padding:1px 6px;white-space:nowrap;">3년 약정</span>
           </div>
-          <div style="font-size:13px;color:#059669;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredDiscDetail"></div>
-          <div style="font-size:12px;color:#64748B;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredParts"></div>
-          <div style="font-size:12.5px;color:#475569;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredSub"></div>
+          <div id="sumWiredBreakdown" style="display:flex;flex-direction:column;gap:7px;margin-top:5px;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:9px;padding-top:7px;border-top:1px dashed #CBD5E1;">
+            <span style="font-size:14px;font-weight:900;color:#0F172A;white-space:nowrap;">① 유선 소계</span>
+            <span style="font-weight:900;font-size:17px;color:#009A3E;white-space:nowrap;" id="sumWired">0원</span>
+          </div>
+          <div style="font-size:12px;color:#475569;font-weight:800;margin-top:2px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sumWiredSub"></div>
         </div>
-        <div id="sumUsimLines" style="display:flex;flex-direction:column;gap:9px;"></div>
+        <div style="border-bottom:1px solid #E2E8F0;padding-bottom:10px;margin-bottom:10px;">
+          <div style="font-size:11.5px;color:#7C3AED;font-weight:900;letter-spacing:0.2px;">② 유심 예상 금액</div>
+          <div id="sumUsimLines" style="display:flex;flex-direction:column;gap:9px;margin-top:5px;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:8px;padding-top:7px;border-top:1px dashed #CBD5E1;">
+            <span style="font-size:14px;font-weight:900;color:#0F172A;">유심 소계</span>
+            <span id="sumUsimSub" style="font-size:16px;font-weight:900;color:#009A3E;white-space:nowrap;">0원</span>
+          </div>
+        </div>
+        <div style="background:#F1F5F9;border:1.5px solid #CBD5E1;border-radius:12px;padding:10px 11px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13.5px;font-weight:900;color:#0F172A;">
+            <span style="white-space:nowrap;">인터넷·TV + 유심 합계</span>
+            <span id="sumSubtotal" style="white-space:nowrap;">0원</span>
+          </div>
+          <div id="sumAffRow" style="display:none;justify-content:space-between;align-items:center;gap:6px;font-size:13px;font-weight:900;color:#DC2626;margin-top:4px;">
+            <span>제휴카드 추가할인</span>
+            <span id="sumAff" style="white-space:nowrap;">-0원</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid #CBD5E1;">
+            <span style="font-size:14px;font-weight:900;color:#111827;white-space:nowrap;">총 합계</span>
+            <span id="sumTotalFinal" style="font-size:21px;font-weight:900;color:#009A3E;white-space:nowrap;letter-spacing:-0.5px;">0원</span>
+          </div>
+        </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #CBD5E1;padding-top:9px;margin-top:9px;font-weight:900;font-size:16px;">
-          <span style="color:#0F172A;">총 할인 금액</span>
+          <span style="color:#0F172A;white-space:nowrap;">총 할인 금액 <span style="font-size:10.5px;font-weight:800;color:#64748B;">(정가 대비)</span></span>
           <span style="color:#DC2626;font-size:17.5px;white-space:nowrap;" id="sumDisc">-0원</span>
         </div>
-        <div style="font-size:12px;color:#475569;font-weight:700;margin-top:4px;text-align:right;" id="sumTotalVatSub">공급가 0원 + 부가세 0원 (전 항목 부가세 포함)</div>
+        <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0 6px;font-size:11.5px;color:#475569;font-weight:800;margin-top:3px;line-height:1.4;" id="sumDiscBreak"></div>
+        <div style="font-size:12px;color:#475569;font-weight:700;margin-top:4px;text-align:right;line-height:1.4;word-break:keep-all;" id="sumTotalVatSub">공급가 0원 + 부가세 0원 (전 항목 부가세 포함)</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed #E5E7EB;">
         <button class="btn-sub" style="padding:9px;font-size:12.5px;border-color:#03C75A;color:#009A3E;background:#E8FBF0;" onclick="openQuoteModal('save')">💾 현재 견적 저장</button>
@@ -181,14 +204,14 @@
           <div class="field-lbl">현금지원 (사은품 원)</div>
           <input class="inp" type="number" id="giftAmt" value="450000" step="10000" oninput="recalc()">
         </div>
-        <div>
-          <div class="field-lbl">인터넷 속도</div>
-          <select class="sel" id="netSelect" onchange="recalc()"></select>
-        </div>
-        <div>
-          <div class="field-lbl">TV 상품</div>
-          <select class="sel" id="tvSelect" onchange="recalc()"></select>
-        </div>
+      </div>
+      <div>
+        <div class="field-lbl">인터넷 속도</div>
+        <select class="sel" id="netSelect" onchange="recalc()"></select>
+      </div>
+      <div>
+        <div class="field-lbl">TV 상품</div>
+        <select class="sel" id="tvSelect" onchange="recalc()"></select>
       </div>
       <div id="ktOptionBox" class="hide">
         <div class="field-lbl" style="color:#7C3AED;">KT 결합 계산 방식</div>
@@ -229,33 +252,38 @@
         </select>
       </div>
       <div id="wifiFieldWrap">
-        <div class="field-lbl" id="wifiFieldLbl">와이파이(공유기) 임대료</div>
+        <div class="field-lbl" id="wifiFieldLbl">와이파이 임대료</div>
         <select class="sel" id="wifiSelect" onchange="recalc()">
           <option value="none">기본 포함 / 미신청 (0원)</option>
           <option value="home">추가 임대 (월 1,100원)</option>
         </select>
         <div id="ktWifiNote" class="hide" style="margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800;color:#5B21B6;line-height:1.45;"></div>
       </div>
-      <div class="grid2">
-        <div>
-          <div class="field-lbl">추가 TV 상품 (2·3대째)</div>
-          <select class="sel" id="extraTvSelect" onchange="recalc()"></select>
-        </div>
-        <div>
-          <div class="field-lbl">추가 TV 대수</div>
-          <select class="sel" id="extraTvCount" onchange="recalc()">
-            <option value="1">1대 추가 (총 2대)</option>
-            <option value="2">2대 추가 (총 3대)</option>
-          </select>
+      <div>
+        <div class="field-lbl">추가 TV 상품 (2·3대째)</div>
+        <select class="sel" id="extraTvSelect" onchange="recalc()"></select>
+        <div id="extraTvNote" class="hide" style="margin-top:6px;font-size:12.5px;font-weight:800;color:#5B21B6;line-height:1.45;"></div>
+      </div>
+      <div>
+        <div class="field-lbl">추가 TV 대수</div>
+        <select class="sel" id="extraTvCount" onchange="recalc()">
+          <option value="1">1대 추가 (총 2대)</option>
+          <option value="2">2대 추가 (총 3대)</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-lbl" style="margin-top:8px;">셋톱박스 선택 (3년 약정 · 부가세 포함)</div>
+        <select class="sel" id="settopSelect" onchange="recalc()"></select>
+        <div id="settopFeeInfo" class="hide" style="margin-top:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:10px;padding:9px 11px;line-height:1.45;">
+          <div id="settopFeeName" style="font-size:12.5px;color:#4B5563;font-weight:800;word-break:keep-all;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:3px;">
+            <span style="font-size:13px;font-weight:900;color:#5B21B6;white-space:nowrap;">셋톱박스 월 임대료</span>
+            <span id="settopFeeAmt" style="font-size:16px;font-weight:900;color:#6D28D9;white-space:nowrap;">0원</span>
+          </div>
         </div>
       </div>
-      <div class="grid2">
-        <div>
-          <div class="field-lbl" style="margin-top:8px;">셋톱박스 선택 (3년 약정 · 부가세 포함)</div>
-    <select class="sel" id="settopSelect" onchange="recalc()"></select>
-        </div>
-        <div>
-          <div class="field-lbl" style="margin-top:8px;">설치비 (1회 청구 · 부가세 포함 · 자동 계산)</div>
+      <div>
+        <div class="field-lbl" style="margin-top:8px;">설치비 (1회 청구 · 부가세 포함 · 자동 계산)</div>
     <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 12px;margin-top:4px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:12.5px;color:#475569;font-weight:700;" id="installFeeDesc">인터넷+TV 동시 설치 (평일 주간)</span>
@@ -270,21 +298,35 @@
         </label>
       </div>
     </div>
-        </div>
       </div>
 <div style="margin-top:11px;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:11px 12px;font-size:14px;font-weight:800;">
-        <div style="display:flex;justify-content:space-between;color:#374151;">
-          <span>원래 인터넷·TV 요금</span>
-          <span id="wiredCardOrig">0원</span>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px;font-size:10.5px;color:#94A3B8;font-weight:800;">
+          <span>유선 요금 분리 계산</span><span>무약정 → 약정 → 결합 → 실청구</span>
         </div>
-        <div style="display:flex;justify-content:space-between;color:#DC2626;margin-top:4px;">
-          <span>할인 금액</span>
-          <span id="wiredCardDisc">-0원</span>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+          <span style="white-space:nowrap;font-size:13.5px;color:#374151;">인터넷·TV 무약정</span>
+          <span id="wiredCardOrig" style="white-space:nowrap;font-size:15px;color:#0F172A;">0원</span>
         </div>
-        <div style="font-size:12.5px;color:#059669;font-weight:800;margin-top:2px;" id="wiredCardDiscTag"></div>
+        <div id="wiredCardComp" style="font-size:11px;color:#64748B;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        <div id="wiredCardDiscLines"></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:6px;padding-top:6px;border-top:1px dashed #CBD5E1;">
+          <span style="white-space:nowrap;font-size:13.5px;color:#374151;">인터넷·TV 실 청구</span>
+          <span style="white-space:nowrap;">
+            <span style="font-size:12px;color:#DC2626;" id="wiredCardDisc"></span>
+            <span style="font-size:15px;color:#009A3E;" id="wiredCardPay">0원</span>
+          </span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:5px;color:#374151;">
+          <span style="white-space:nowrap;font-size:13.5px;">와이파이</span>
+          <span id="wiredCardWifi" style="white-space:nowrap;color:#009A3E;">0원</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;color:#374151;">
+          <span style="white-space:nowrap;font-size:13.5px;">셋톱박스</span>
+          <span id="wiredCardSettop" style="white-space:nowrap;color:#009A3E;">0원</span>
+        </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #CBD5E1;padding-top:7px;margin-top:7px;font-size:16px;font-weight:900;color:#111827;">
-          <span>실 청구 금액</span>
-          <span id="wiredCardPay" style="color:#009A3E;">0원</span>
+          <span>총 유선 실 청구 금액</span>
+          <span id="wiredCardWiredTotal" style="color:#009A3E;">0원</span>
         </div>
       </div>
     </div>
@@ -596,10 +638,11 @@ const TV_BUNDLE_DISC = {
 const CARRIERS = {
   'SKB': {
     name: 'SK브로드밴드',
+    // V6.5f: nc = 2026 SK브로드밴드 공식 무약정 정가 (약정할인 = nc − 3년 약정가, 청구액 불변)
     nets: [
-      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100 },
-      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500 },
-      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000 }
+      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100, nc: 36300 },
+      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500, nc: 49500 },
+      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000, nc: 55000 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
@@ -663,10 +706,11 @@ const CARRIERS = {
   },
   'SKT': {
     name: 'SKT',
+    // V6.5f: nc = 2026 SK브로드밴드 공식 무약정 정가 (약정할인 = nc − 3년 약정가, 청구액 불변)
     nets: [
-      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100 },
-      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500 },
-      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000 }
+      { label: '100M 광랜 (22,000원)', price: 22000, speed: 100, nc: 36300 },
+      { label: '500M 기가라이트 (33,000원)', price: 33000, speed: 500, nc: 49500 },
+      { label: '1G 기가인터넷 (38,500원)', price: 38500, speed: 1000, nc: 55000 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
@@ -730,17 +774,19 @@ const CARRIERS = {
   },
   'KT': {
     name: 'KT',
+    // V6.5f: nc = KT 공식 약정별 요금표의 무약정 정가 (500M 베이직 46,200 → 3년 33,000)
     nets: [
-      { label: '100M 슬림 (22,000원)', price: 22000, speed: 100 },
-      { label: '500M 베이직 (33,000원)', price: 33000, speed: 500 },
-      { label: '1G 에센스 (38,500원)', price: 38500, speed: 1000 }
+      { label: '100M 슬림 (22,000원)', price: 22000, speed: 100, nc: 39600 },
+      { label: '500M 베이직 (33,000원)', price: 33000, speed: 500, nc: 46200 },
+      { label: '1G 에센스 (38,500원)', price: 38500, speed: 1000, nc: 55000 }
     ],
+    // V6.5f: nc = KT 지니TV 무약정 정가 (베이직 16,500 · 라이트 19,800 · 에센스 25,300 · 모든G 28,930)
     tvs: [
-      { label: '미가입 (인터넷 단독)', price: 0 },
-      { label: '지니 TV 베이직 (12,100원)', price: 12100 },
-      { label: '지니 TV 라이트 (13,200원)', price: 13200 },
-      { label: '지니 TV 에센스 (16,500원)', price: 16500 },
-      { label: '지니 TV 모든G (19,800원)', price: 19800 }
+      { label: '미가입 (인터넷 단독)', price: 0, nc: 0 },
+      { label: '지니 TV 베이직 (12,100원)', price: 12100, nc: 16500 },
+      { label: '지니 TV 라이트 (13,200원)', price: 13200, nc: 19800 },
+      { label: '지니 TV 에센스 (16,500원)', price: 16500, nc: 25300 },
+      { label: '지니 TV 모든G (19,800원)', price: 19800, nc: 28930 }
     ],
     settops: [
       { label: '지니 TV 셋톱박스 A2 · 케어 (5,500원)', price: 5500 },
@@ -823,10 +869,11 @@ const CARRIERS = {
   },
   'LG U+': {
     name: 'LG U+',
+    // V6.5f: nc = LG U+ 공식 무약정 정가 (와이파이기본 계열, 500M 56,100 → 3년 33,000)
     nets: [
-      { label: '100M 스마트 (22,000원)', price: 22000, speed: 100 },
-      { label: '500M 와이파이 (33,000원)', price: 33000, speed: 500 },
-      { label: '1G 스마트기가 (38,500원)', price: 38500, speed: 1000 }
+      { label: '100M 스마트 (22,000원)', price: 22000, speed: 100, nc: 42900 },
+      { label: '500M 와이파이 (33,000원)', price: 33000, speed: 500, nc: 56100 },
+      { label: '1G 스마트기가 (38,500원)', price: 38500, speed: 1000, nc: 64900 }
     ],
     tvs: [
       { label: '미가입 (인터넷 단독)', price: 0 },
@@ -1119,15 +1166,15 @@ function populateSelects() {
   renderWifiSelect();
 }
 
-/* ── 공유기(와이파이) 선택 ──────────────────────────────────────
+/* ── 와이파이 선택 ──────────────────────────────────────
    KT 2026년 공식 요금(3년 약정·부가세 포함, 신규 가입 기준)
    · 인터넷 단독 : 슬림 100M 22,000 / 베이직 500M 33,000 / 에센스 1G 38,500
    · 인터넷 와이파이(기본 7D) : 24,200 / 35,200 / 39,600
    · GiGA WiFi home으로 바꾸면 1,100원 인하 (1G는 0원)
-   → 공유기 추가분 : 100M·500M home +1,100 · 7D +2,200 / 1G home +0 · 7D +1,100
-   · KT WiFi 7D Plus(공유기 1대 추가) 3년 월 2,750원 */
+   → 와이파이 추가분 : 100M·500M home +1,100 · 7D +2,200 / 1G home +0 · 7D +1,100
+   · KT WiFi 7D Plus(와이파이 1대 추가) 3년 월 2,750원 */
 const KT_WIFI = {
-  none:     { label: '공유기 미신청',                 fee: s => 0 },
+  none:     { label: '와이파이 미신청',                 fee: s => 0 },
   home:     { label: 'GiGA WiFi home ax (WiFi 6)',    fee: s => (s >= 1000 ? 0 : 1100) },
   '7d':     { label: 'KT WiFi 7D (WiFi 7 · 추천)',   fee: s => (s >= 1000 ? 1100 : 2200) },
   '7dplus': { label: 'KT WiFi 7D 2대 (7D Plus)',      fee: s => (s >= 1000 ? 1100 : 2200) + 2750 }
@@ -1156,7 +1203,7 @@ function wifiFeeOf(carrier, speed, key) {
 
 function wifiLabelOf(carrier, key) {
   if (carrier === 'KT') return (KT_WIFI[key] || KT_WIFI.none).label;
-  return key === 'home' ? '와이파이 공유기 추가 임대' : '공유기 미신청';
+  return key === 'home' ? '와이파이 추가 임대' : '와이파이 미신청';
 }
 
 function renderWifiSelect() {
@@ -1173,12 +1220,12 @@ function renderWifiSelect() {
       return `<option value="${k}">${KT_WIFI[k].label}${speed === 0 ? '' : ` (${fee > 0 ? fmt(fee) + '원' : '0원'})`}</option>`;
     }).join('');
     sel.value = keys.indexOf(cur) >= 0 ? cur : 'none';
-    if (lbl) lbl.textContent = '공유기(와이파이) 선택 · KT';
+    if (lbl) lbl.textContent = '와이파이 선택 · KT';
     if (note) note.classList.remove('hide');
   } else {
     sel.innerHTML = `<option value="none">기본 포함 / 미신청 (0원)</option><option value="home">추가 임대 (월 1,100원)</option>`;
     sel.value = (cur === 'home') ? 'home' : 'none';
-    if (lbl) lbl.textContent = '와이파이(공유기) 임대료';
+    if (lbl) lbl.textContent = '와이파이 임대료';
     if (note) note.classList.add('hide');
   }
 }
@@ -1190,7 +1237,7 @@ function updateKtWifiNote(netObj, key, fee) {
   note.classList.remove('hide');
   const speed = netObj.speed || 0;
   if (speed === 0) {
-    note.innerHTML = '인터넷을 먼저 선택하면 공유기 임대료까지 함께 계산됩니다.';
+    note.innerHTML = '인터넷을 먼저 선택하면 와이파이 임대료까지 함께 계산됩니다.';
     return;
   }
   if (key === 'none') {
@@ -1201,7 +1248,7 @@ function updateKtWifiNote(netObj, key, fee) {
   const detail = key === '7dplus'
     ? `<br><span style="font-size:10.5px;font-weight:700;color:#6D28D9;">7D ${fmt(base7d)}원 + 추가1대 2,750원 · 3년 약정·부가세 포함</span>`
     : `<br><span style="font-size:10.5px;font-weight:700;color:#6D28D9;">2026년 KT 공식 3년 약정·부가세 포함 (신규 가입)</span>`;
-  note.innerHTML = `인터넷 ${fmt(netObj.price)}원 + 공유기 ${fmt(fee)}원 = <b>${fmt(netObj.price + fee)}원</b>${detail}`;
+  note.innerHTML = `인터넷 ${fmt(netObj.price)}원 + 와이파이 ${fmt(fee)}원 = <b>${fmt(netObj.price + fee)}원</b>${detail}`;
 }
 
 function canAssignMode() {
@@ -1455,6 +1502,8 @@ function recalc() {
   const years = parseInt(document.getElementById('termYears').value, 10);
   const ratio = years === 3 ? 1 : (years === 2 ? 0.5 : 0.25);
   document.getElementById('termBadge').textContent = `${years}년 약정`;
+  const sumTermBadge = document.getElementById('sumWiredTermBadge');
+  if (sumTermBadge) sumTermBadge.textContent = `${years}년 약정`;
 
   const netIdxVal = parseInt(document.getElementById('netSelect').value, 10);
   const netObj = netIdxVal === -1 ? { label: '선택 안함 (0원)', price: 0, speed: 0 } : (c.nets[netIdxVal] || c.nets[0]);
@@ -1472,6 +1521,28 @@ function recalc() {
   if (settopSelEl) settopSelEl.disabled = (tvObj.price === 0);
   const settopObj = (c.settops && settopSelEl) ? (c.settops[parseInt(settopSelEl.value, 10)] || c.settops[0]) : { label: '기본', price: 0 };
   const settopAdd = (tvObj.price > 0 ? (settopObj.price || 0) : 0);
+  const stInfoEl = document.getElementById('settopFeeInfo');
+  if (stInfoEl) {
+    if (tvObj.price > 0) {
+      stInfoEl.classList.remove('hide');
+      const stNameEl = document.getElementById('settopFeeName');
+      if (stNameEl) stNameEl.textContent = `${String(settopObj.label || '').replace(/\s*\([^)]*\)\s*$/, '')} · ${years}년 약정`;
+      const stAmtEl = document.getElementById('settopFeeAmt');
+      if (stAmtEl) stAmtEl.textContent = `${fmt(settopAdd)}원`;
+    } else {
+      stInfoEl.classList.add('hide');
+    }
+  }
+  const exNoteEl = document.getElementById('extraTvNote');
+  if (exNoteEl) {
+    if (extraTvUnit > 0 && extraTvCnt > 0) {
+      const exLbl = ((c.extraTvs || [])[parseInt(document.getElementById('extraTvSelect').value, 10)] || {}).label || '';
+      exNoteEl.classList.remove('hide');
+      exNoteEl.textContent = `추가 TV ${extraTvCnt}대 · 대당 ${fmt(extraTvUnit)}원 · 합계 ${fmt(extraTv)}원`;
+    } else {
+      exNoteEl.classList.add('hide');
+    }
+  }
   const instObj = (netObj.price === 0 && tvObj.price === 0) ? { amt: 0, text: '미선택 (0원)' } : calcAutoInstallFee(state.carrier, tvObj.price > 0, extraTvCnt, tvObj.label);
   const installFee = instObj.text;
   const ifDescEl = document.getElementById('installFeeDesc');
@@ -1489,8 +1560,10 @@ function recalc() {
   const tvRatio = (state.carrier === 'KT' && years !== 3) ? 0 : ratio;   // KT는 3년 약정만 공식 게시
   const tvBundleDisc = tvOn ? Math.round(((TV_BUNDLE_DISC[state.carrier] || {})[netObj.speed] || 0) * tvRatio) : 0;
   const mobileNetDisc = bRes.netDisc || 0;
-  const tvStack = (state.carrier === 'KT' || state.carrier === 'LG U+');  // KT·LG U+는 합산, SKB·SKT는 중복 불가(큰 쪽만)
-  const netDiscFinal = tvStack ? (mobileNetDisc + tvBundleDisc) : Math.max(mobileNetDisc, tvBundleDisc);
+  // V6.5e(사용자 추가 지시): KT·LG U+는 유심결합 인터넷 할인과 인터넷·TV 결합 할인을 각각 차감한다.
+  //  SKB·SKT는 약관상 중복 불가 → 큰 쪽 하나만(Math.max) 유지. 스카이라이프·LG헬로비전도 기존(max) 유지.
+  const canStackWiredDisc = (state.carrier === 'KT' || state.carrier === 'LG U+');
+  const netDiscFinal = canStackWiredDisc ? (mobileNetDisc + tvBundleDisc) : Math.max(mobileNetDisc, tvBundleDisc);
 
   // 유선 복지 감면 (기초연금 제외, 유선 결합과 중복 불가 -> 더 큰 쪽 적용)
   let wNetDisc = 0, wTvDisc = 0;
@@ -1504,8 +1577,33 @@ function recalc() {
   const useWelfareWired = welfareWiredDisc > bundleWiredDisc;
   const finalWiredDisc = Math.max(bundleWiredDisc, welfareWiredDisc);
 
-  const wiredBase = netObj.price + tvObj.price + wifi + extraTv + settopAdd;
-  const wiredFinal = Math.max(0, wiredBase - finalWiredDisc);
+  const wiredBase = netObj.price + tvObj.price + extraTv + wifi + settopAdd;   // 유선 정가 합(인터넷·TV + 와이파이 + 셋톱)
+  // V6.5e: ① 을 `인터넷·TV`(정가·할인·실청구) / `와이파이` / `셋톱박스` 로 나눠 계산한다.
+  //  할인은 인터넷·TV 정가까지만 적용하고(초과분은 0 처리), 와이파이·셋톱은 정가 그대로 더한다.
+  const netTvOrig = netObj.price + tvObj.price + extraTv;   // 인터넷·TV 3년 약정가(청구 기준 · V6.5e와 동일)
+  // V6.5f(사용자 지시 "3년 약정할인을 먼저 빼고 그다음 인티결합 그다음 유심결합 순서"):
+  //  무약정 정가(nc) → 약정할인 → 인터넷·TV 결합 → 인터넷·TV·유심결합 순서로 차감한다.
+  //  nc 가 없는 상품은 약정할인 0 이 되어 실 청구액이 V6.5e와 1원도 달라지지 않는다.
+  const ncOf = o => (o && typeof o.nc === 'number') ? o.nc : (o ? o.price : 0);
+  const netNcOrig = ncOf(netObj) + ncOf(tvObj) + extraTv;         // 인터넷·TV 무약정 정가
+  const contractDisc = Math.max(0, netNcOrig - netTvOrig);        // 약정할인(무약정 정가 − 3년 약정가)
+  // V6.5e: `인터넷·TV 결합`(TV 결합) / `인터넷·TV·유심결합`(유심 결합 인터넷 할인)을 따로 표시한다.
+  const usimLinkedDisc = mobileNetDisc;   // 유심 결합으로 생기는 인터넷 할인
+  let usimBundlePart = 0, tvBundlePart = 0;
+  if (!useWelfareWired) {
+    if (canStackWiredDisc) {
+      usimBundlePart = mobileNetDisc;        // 유심결합 인터넷 할인
+      tvBundlePart = tvBundleDisc;           // 인터넷·TV 결합 할인
+    } else if (usimLinkedDisc > 0 && usimLinkedDisc >= tvBundleDisc) {
+      usimBundlePart = netDiscFinal;
+    } else {
+      tvBundlePart = netDiscFinal;
+    }
+  }
+  const wiredDiscApplied = useWelfareWired ? welfareWiredDisc : (usimBundlePart + tvBundlePart + (bRes.tvDisc || 0));
+  const netTvDisc = Math.min(contractDisc + wiredDiscApplied, netNcOrig);   // 인터넷·TV 총 할인(약정 + 결합)
+  const netTvFinal = Math.max(0, netNcOrig - netTvDisc);                    // 인터넷·TV 실 청구
+  const wiredFinal = Math.max(0, netTvFinal + wifi + settopAdd);    // ① 유선 소계(인터넷·TV + 와이파이 + 셋톱)
 
   let usimFinalSum = 0;
   let sel25Sum = 0;
@@ -1545,7 +1643,8 @@ function recalc() {
     if (discTotEl) discTotEl.textContent = `-${fmt(lineDiscSum)}원`;
     const parts = [];
     if (s25 > 0) parts.push(`선택약정 -${fmt(s25)}`);
-    if (mDisc > 0) parts.push(`${isAssignMode() ? '지정결합' : '결합'} -${fmt(mDisc)}`);
+    // V6.5d: ② 유심 줄의 회선 할인 라벨은 유심 결합임을 분명히 `유심결합`으로 표기(사용자 지시).
+    if (mDisc > 0) parts.push(`${isAssignMode() ? '지정결합' : '유심결합'} -${fmt(mDisc)}`);
     if (yDisc > 0) parts.push(`청소년 -${fmt(yDisc)}`);
     if (wMob > 0) parts.push(`복지 -${fmt(wMob)}`);
     if (tagEl) tagEl.textContent = parts.length ? `(${parts.join(' · ')})` : '(적용된 할인 없음)';
@@ -1561,56 +1660,98 @@ function recalc() {
     else wInfo.textContent = `복지 감면 적용: 1회선 휴대폰 -${fmt(welfareMobTotal)}원 / 인터넷·TV ${useWelfareWired ? `복지 -${fmt(welfareWiredDisc)}원 (결합보다 유리)` : `결합 -${fmt(bundleWiredDisc)}원 유지 (복지보다 유리)`}`;
   }
 
-  const totalBeforeAff = wiredFinal + usimFinalSum;
+  const usimSubtotal = usimFinalSum;
+  const totalBeforeAff = wiredFinal + usimSubtotal;
   const totalMonthly = Math.max(0, totalBeforeAff - state.affDisc);
   const giftMonthly = Math.round(gift / (years * 12));
   const realMonthly = Math.max(0, totalMonthly - giftMonthly);
-  const totalDisc = (Number(finalWiredDisc)||0) + (Number(bRes.mobDiscTotal)||0) + (Number(sel25Sum)||0) + (Number(youthTotal)||0) + (Number(welfareMobTotal)||0) + (Number(state.affDisc)||0);
+  // V6.5f: 총 할인은 무약정 정가 기준 → 약정할인 + 결합·선택약정·카드 할인 합계
+  const totalDisc = (Number(contractDisc)||0) + (Number(wiredDiscApplied)||0) + (Number(bRes.mobDiscTotal)||0) + (Number(sel25Sum)||0) + (Number(youthTotal)||0) + (Number(welfareMobTotal)||0) + (Number(state.affDisc)||0);
 
   document.getElementById('sumMonthly').innerHTML = `${fmt(totalMonthly)}<span>원 / 월</span>`;
 
   const wiredSupply = Math.round(wiredFinal / 1.1);
   const wiredVat = wiredFinal - wiredSupply;
-  const wParts = [];
+  // V6.5f: 할인 항목을 구조로 만들어 `N년 약정할인 → 인터넷·TV 결합 → 인터넷·TV·유심결합` 순서로 표시한다.
+  const wPartObjs = [];
   if (useWelfareWired) {
-    if (welfareWiredDisc > 0) wParts.push(`복지 -${fmt(welfareWiredDisc)}`);
+    if (welfareWiredDisc > 0) wPartObjs.push({ k: 'welfare', label: '복지', amt: welfareWiredDisc });
   } else {
-    const netD = bRes.netDisc || 0;
-    if (netD > 0) wParts.push(`인터넷 -${fmt(netD)}`);
-    // KT·LG U+는 유무선결합 + 인터넷·TV 결합 합산, SKB·SKT는 큰 쪽만 적용되므로 TV 결합이 클 때만 따로 표기
-    if (tvBundleDisc > 0 && (tvStack || tvBundleDisc > netD)) wParts.push(`인터넷·TV 결합 -${fmt(tvBundleDisc)}`);
-    if ((bRes.tvDisc || 0) > 0) wParts.push(`TV -${fmt(bRes.tvDisc)}`);
+    if (tvBundlePart > 0) wPartObjs.push({ k: 'tv', label: '인터넷·TV 결합', amt: tvBundlePart });
+    if (usimBundlePart > 0) wPartObjs.push({ k: 'usim', label: '인터넷·TV·유심결합', amt: usimBundlePart });
+    if ((bRes.tvDisc || 0) > 0) wPartObjs.push({ k: 'tvadd', label: (state.carrier === 'SKB' || state.carrier === 'SKT') ? 'B tv' : 'TV', amt: bRes.tvDisc });
   }
+  const contractLabel = `${years}년 약정할인`;
+  const allPartObjs = (contractDisc > 0 ? [{ k: 'contract', label: contractLabel, amt: contractDisc }] : []).concat(wPartObjs);
+  const wParts = allPartObjs.map(p => `${p.label} -${fmt(p.amt)}`);
   const wDetailTxt = wParts.length ? wParts.join(' · ') : '적용된 할인 없음';
+  const wDetailTxt2 = wDetailTxt;   // 테스트용 평문(① 표시줄·1번 카드 괄호 내역과 같은 문자열)
+  // 라벨이 길어도 숫자가 중간에서 끊기지 않도록 항목별 nowrap + `·` 앞뒤에서만 줄바꿈
+  const wDetailHtml = wParts.length
+    ? wParts.map(p => `<span style="white-space:nowrap;">${p}</span>`).join(' <span style="color:#94A3B8;">·</span> ')
+    : '적용된 할인 없음';
+  // 할인 한 줄(약정할인은 가장 굵고 진하게, 결합 할인은 초록 라벨)
+  const discLineHtml = (p, idPrefix) => `
+        <div id="${idPrefix}${p.k}" style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:${p.k === 'contract' ? '5px' : '2px'};">
+          <span style="font-weight:${p.k === 'contract' ? '900' : '800'};font-size:${p.k === 'contract' ? '13px' : '12.5px'};color:${p.k === 'contract' ? '#0F172A' : '#047857'};white-space:nowrap;">${p.label}</span>
+          <span style="font-weight:900;font-size:${p.k === 'contract' ? '13.5px' : '13px'};color:#DC2626;white-space:nowrap;">-${fmt(p.amt)}원</span>
+        </div>`;
 
-  const wTitleEl = document.getElementById('sumWiredTitle');
-  if (wTitleEl) wTitleEl.innerHTML = `인터넷·TV <span style="font-size:13px;color:#475569;font-weight:800;">(${fmt(wiredBase)}원)</span>`;
-  const wDetEl = document.getElementById('sumWiredDiscDetail');
-  if (wDetEl) wDetEl.textContent = wDetailTxt;
-  document.getElementById('sumWired').textContent = `${fmt(wiredFinal)}원`;
-  const wDiscEl = document.getElementById('sumWiredDisc');
-  if (wDiscEl) wDiscEl.textContent = finalWiredDisc > 0 ? `-${fmt(finalWiredDisc)}원` : '';
-  const wSubEl = document.getElementById('sumWiredSub');
-  if (wSubEl) wSubEl.textContent = `공급가 ${fmt(wiredSupply)} + 부가세 ${fmt(wiredVat)}`;
-  const wPartsEl = document.getElementById('sumWiredParts');
-  if (wPartsEl) {
-    const comp = [];
-    if (netObj.price > 0) comp.push(`인터넷 ${fmt(netObj.price)}`);
-    if (tvObj.price > 0) comp.push(`TV ${fmt(tvObj.price)}`);
-    if (wifi > 0) comp.push(`공유기 ${fmt(wifi)}`);
-    if (settopAdd > 0) comp.push(`셋톱 ${fmt(settopAdd)}`);
-    if (extraTv > 0) comp.push(`추가TV ${fmt(extraTv)}`);
-    wPartsEl.textContent = comp.join(' + ');
+  // V6.5e: ① 을 `인터넷·TV`(정가 → 할인 → 실청구) / `와이파이` / `셋톱박스` 로 각각 표시하고 `① 유선 소계` 를 둔다.
+  const wBreakEl = document.getElementById('sumWiredBreakdown');
+  if (wBreakEl) {
+    const wComp = [];
+    if (netObj.price > 0) wComp.push(`인터넷 ${fmt(ncOf(netObj))}`);
+    if (tvObj.price > 0) wComp.push(`TV ${fmt(ncOf(tvObj))}`);
+    if (extraTv > 0) wComp.push(`추가TV ${extraTvCnt}대 ${fmt(extraTv)}`);
+    const extraRow = (name, amt) => `
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+        <span style="font-weight:900;font-size:13.5px;color:${amt > 0 ? '#0F172A' : '#94A3B8'};white-space:nowrap;">${name}</span>
+        <span style="white-space:nowrap;font-weight:900;font-size:14.5px;color:${amt > 0 ? '#009A3E' : '#94A3B8'};">${fmt(amt)}원${amt > 0 ? '' : ` <span style="font-size:10.5px;font-weight:800;">(미신청)</span>`}</span>
+      </div>`;
+    wBreakEl.innerHTML = `
+      <div>
+        <!-- V6.5f: 무약정 정가 → N년 약정할인 → 인터넷·TV 결합 → 인터넷·TV·유심결합 → 실 청구 -->
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+          <span style="font-weight:900;font-size:13.5px;color:#0F172A;white-space:nowrap;">인터넷·TV 무약정 정가</span>
+          <span style="font-weight:900;font-size:15.5px;color:#0F172A;white-space:nowrap;">${fmt(netNcOrig)}원</span>
+        </div>
+        ${wComp.length ? `<div style="font-size:11px;color:#64748B;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${wComp.join(' · ')}</div>` : ''}
+        ${allPartObjs.map(p => discLineHtml(p, 'wDisc-')).join('')}
+        ${years !== 3 ? `<div style="font-size:10.5px;color:#94A3B8;font-weight:700;margin-top:2px;">* 인터넷·TV 요금은 3년 약정가 기준입니다</div>` : ''}
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:6px;padding-top:6px;border-top:1px dashed #CBD5E1;">
+          <span style="font-weight:900;font-size:13px;color:#0F172A;white-space:nowrap;">인터넷·TV 실 청구</span>
+          <span style="white-space:nowrap;">
+            ${netTvDisc > 0 ? `<span style="color:#DC2626;font-weight:900;font-size:11.5px;margin-right:5px;">-${fmt(netTvDisc)}원</span>` : ''}
+            <span style="font-weight:900;font-size:15.5px;color:#009A3E;">${fmt(netTvFinal)}원</span>
+          </span>
+        </div>
+      </div>` + extraRow('와이파이', wifi) + extraRow('셋톱박스', settopAdd);
   }
+  document.getElementById('sumWired').textContent = `${fmt(wiredFinal)}원`;
+  const wSubEl = document.getElementById('sumWiredSub');
+  if (wSubEl) wSubEl.textContent = `공급가 ${fmt(wiredSupply)} + 부가세 ${fmt(wiredVat)} (부가세 포함)`;
 
   const wcOrig = document.getElementById('wiredCardOrig');
+  const wcComp = document.getElementById('wiredCardComp');
+  const wcLines = document.getElementById('wiredCardDiscLines');
   const wcDisc = document.getElementById('wiredCardDisc');
-  const wcTag = document.getElementById('wiredCardDiscTag');
   const wcPay = document.getElementById('wiredCardPay');
-  if (wcOrig) wcOrig.textContent = `${fmt(wiredBase)}원`;
-  if (wcDisc) wcDisc.textContent = `-${fmt(finalWiredDisc)}원`;
-  if (wcTag) wcTag.textContent = `(${wDetailTxt})`;
-  if (wcPay) wcPay.textContent = `${fmt(wiredFinal)}원`;
+  if (wcOrig) wcOrig.textContent = `${fmt(netNcOrig)}원`;
+  const wcCompParts = [];
+  if (netObj.price > 0) wcCompParts.push(`인터넷 ${fmt(ncOf(netObj))}`);
+  if (tvObj.price > 0) wcCompParts.push(`TV ${fmt(ncOf(tvObj))}`);
+  if (extraTv > 0) wcCompParts.push(`추가TV ${extraTvCnt}대 ${fmt(extraTv)}`);
+  if (wcComp) wcComp.textContent = wcCompParts.join(' · ');
+  if (wcLines) wcLines.innerHTML = allPartObjs.map(p => discLineHtml(p, 'wcd-')).join('');
+  if (wcDisc) wcDisc.textContent = netTvDisc > 0 ? `-${fmt(netTvDisc)}원` : '';
+  if (wcPay) wcPay.textContent = `${fmt(netTvFinal)}원`;
+  const wcWifi = document.getElementById('wiredCardWifi');
+  if (wcWifi) { wcWifi.textContent = `${fmt(wifi)}원`; wcWifi.style.color = wifi > 0 ? '#009A3E' : '#94A3B8'; }
+  const wcSettop = document.getElementById('wiredCardSettop');
+  if (wcSettop) { wcSettop.textContent = `${fmt(settopAdd)}원`; wcSettop.style.color = settopAdd > 0 ? '#009A3E' : '#94A3B8'; }
+  const wcTotal = document.getElementById('wiredCardWiredTotal');
+  if (wcTotal) wcTotal.textContent = `${fmt(wiredFinal)}원`;
 
   const uBox = document.getElementById('sumUsimLines');
   if (uBox) {
@@ -1630,10 +1771,30 @@ function recalc() {
           </div>
           <div style="font-size:12.5px;color:#059669;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.detail || '할인 없음'}</div>
         </div>
-      `).join('') +
-      (state.affDisc > 0 ? `<div style="display:flex;justify-content:space-between;font-weight:900;font-size:14.5px;color:#DC2626;"><span>제휴카드 추가할인</span><span style="white-space:nowrap;">-${fmt(state.affDisc)}원</span></div>` : '');
+      `).join('');
   }
+  const usimSubEl = document.getElementById('sumUsimSub');
+  if (usimSubEl) usimSubEl.textContent = `${fmt(usimSubtotal)}원`;
+  const subTotalEl = document.getElementById('sumSubtotal');
+  if (subTotalEl) subTotalEl.textContent = `${fmt(totalBeforeAff)}원`;
+  const affRowEl = document.getElementById('sumAffRow');
+  if (affRowEl) affRowEl.style.display = state.affDisc > 0 ? 'flex' : 'none';
+  const affEl = document.getElementById('sumAff');
+  if (affEl) affEl.textContent = `-${fmt(state.affDisc)}원`;
+  const finalEl = document.getElementById('sumTotalFinal');
+  if (finalEl) finalEl.textContent = `${fmt(totalMonthly)}원`;
+  const splitEl = document.getElementById('sumMonthlySplit');
+  if (splitEl) splitEl.textContent = `① 유선 ${fmt(wiredFinal)} + ② 유심 ${fmt(usimSubtotal)}원` + (state.affDisc > 0 ? ` − 카드 ${fmt(state.affDisc)}원` : '');
   document.getElementById('sumDisc').textContent = `-${fmt(totalDisc)}원`;
+  const discBreakEl = document.getElementById('sumDiscBreak');
+  if (discBreakEl) {
+    const bundleSideDisc = Math.max(0, totalDisc - contractDisc);
+    const bdParts = [];
+    if (contractDisc > 0) bdParts.push(`${contractLabel} -${fmt(contractDisc)}`);
+    if (bundleSideDisc > 0) bdParts.push(`결합·선택약정·카드 -${fmt(bundleSideDisc)}`);
+    // 좁은 화면(320)에서는 항목 단위로만 줄바꿈되도록 nowrap 조각으로 그린다
+    discBreakEl.innerHTML = bdParts.map(p => `<span style="white-space:nowrap;">${p}</span>`).join(' ');
+  }
   const totalSupply = Math.round(totalMonthly / 1.1);
   const totalVat = totalMonthly - totalSupply;
   const tvSubEl = document.getElementById('sumTotalVatSub');
@@ -1642,7 +1803,8 @@ function recalc() {
   state.lastResult = {
     carrier: c.name, years, netLabel: netObj.label, tvLabel: (tvObj.price > 0 ? `${tvObj.label} + ${settopObj.label}` : tvObj.label) + (extraTv > 0 ? ` (+추가TV ${extraTvCnt}대 ${fmt(extraTv)}원)` : ''),
     wifiLabel: wifiLabelOf(state.carrier, wifiKey), wifiFee: wifi,
-    wiredFinal, usimCount: state.usim.length, usimFinalSum, affDisc: state.affDisc,
+    wiredFinal, netTvOrig, netNcOrig, contractDisc, netTvDisc, netTvFinal, wifiAmt: wifi, settopAmt: settopAdd, wiredDiscApplied,
+    usimCount: state.usim.length, usimFinalSum: usimSubtotal, netDiscFinal, usimBundlePart, tvBundlePart, affDisc: state.affDisc,
     welfareMobTotal, welfareWiredDisc: useWelfareWired ? welfareWiredDisc : 0, installFee,
     totalMonthly, gift, realMonthly, totalDisc
   };
@@ -1677,7 +1839,7 @@ function copyKakaoText() {
     `■ 통신사: ${r.carrier} (${r.years}년 약정)`,
     `■ 인터넷: ${r.netLabel}`,
     `■ TV: ${r.tvLabel}`,
-    `■ 공유기: ${r.wifiFee > 0 ? `${r.wifiLabel} (월 ${fmt(r.wifiFee)}원)` : '미신청'}`,
+    `■ 와이파이: ${r.wifiFee > 0 ? `${r.wifiLabel} (월 ${fmt(r.wifiFee)}원)` : '미신청'}`,
     `■ 유심 결합: ${r.usimCount}회선 (선택약정 25%+결합 적용)`,
     (r.welfareMobTotal > 0 || r.welfareWiredDisc > 0) ? `■ 복지 감면: 월 -${fmt(r.welfareMobTotal + r.welfareWiredDisc)}원` : null,
     r.affDisc > 0 ? `■ 제휴카드 할인: 월 -${fmt(r.affDisc)}원` : null,
@@ -1731,7 +1893,7 @@ function downloadGuideImage() {
     ['통신사', `${r.carrier} (${r.years}년 약정)`],
     ['인터넷', r.netLabel],
     ['TV 상품', r.tvLabel],
-    ['공유기', r.wifiFee > 0 ? `${String(r.wifiLabel || '').replace(/\s*\([^)]*\)/g, '')} 월 ${fmt(r.wifiFee)}원` : '미신청'],
+    ['와이파이', r.wifiFee > 0 ? `${String(r.wifiLabel || '').replace(/\s*\([^)]*\)/g, '')} 월 ${fmt(r.wifiFee)}원` : '미신청'],
     ['유심 결합', `${r.usimCount}회선 (선택약정 25% + 결합)`],
     ['제휴카드 할인', r.affDisc > 0 ? `월 -${fmt(r.affDisc)}원` : '미적용'],
     ['총 월 할인액', `-${fmt(r.totalDisc)}원`],
@@ -1942,7 +2104,7 @@ function sendQuoteToCrm() {
   ];
   if (lr.gift > 0) memoLines.push(`현금지원 ${fmt(lr.gift)}원 (실 체감 월 ${fmt(lr.realMonthly)}원)`);
   if (lr.affDisc > 0) memoLines.push(`제휴카드 추가할인 -${fmt(lr.affDisc)}원`);
-  if (wifiFeeVal > 0) memoLines.push(`공유기 ${wifiLabelOf(state.carrier, wifiKeyVal)} 월 ${fmt(wifiFeeVal)}원`);
+  if (wifiFeeVal > 0) memoLines.push(`와이파이 ${wifiLabelOf(state.carrier, wifiKeyVal)} 월 ${fmt(wifiFeeVal)}원`);
 
   const payload = {
     carrier: crmCarrier,
